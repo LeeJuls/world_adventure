@@ -175,7 +175,6 @@ export class WorldMapScene extends Phaser.Scene {
     let minDist = PORT_RADIUS;
 
     for (const port of this.ports) {
-      if (this.discoveredPorts.has(port.id)) continue;
       const dist = Phaser.Math.Distance.Between(
         this.ship.x, this.ship.y,
         lonToX(port.coords.lon), latToY(port.coords.lat),
@@ -186,8 +185,13 @@ export class WorldMapScene extends Phaser.Scene {
     if (closest !== this.nearbyPort) {
       this.nearbyPort = closest;
       if (closest) {
+        const isVisited = this.discoveredPorts.has(closest.id);
+        const hint = isVisited
+          ? `📖 ${closest.nameKo} 다시보기 (Space)`
+          : '⚓ Space 로 발견!';
         this.anchorHint
           .setPosition(lonToX(closest.coords.lon), latToY(closest.coords.lat) - 16)
+          .setText(hint)
           .setVisible(true);
       } else {
         this.anchorHint.setVisible(false);
@@ -198,41 +202,42 @@ export class WorldMapScene extends Phaser.Scene {
   // ── Discovery ─────────────────────────────────────────────────────────────
 
   private discoverPort(port: Port): void {
-    if (this.discoveredPorts.has(port.id)) return;
-    this.discoveredPorts.add(port.id);
     this.nearbyPort = null;
     this.anchorHint.setVisible(false);
 
-    // Collect specialties
-    port.specialties.forEach(s => {
-      this.collectedSpecialties.add(`${port.id}:${s.icon}`);
-    });
+    const isNew = !this.discoveredPorts.has(port.id);
 
-    // Update marker to discovered style
-    const g = this.portMarkers.get(port.id);
-    if (g) {
-      const px = lonToX(port.coords.lon);
-      const py = latToY(port.coords.lat);
-      g.clear();
-      g.fillStyle(0x44ff88);
-      g.fillCircle(px, py, 7);
-      g.fillStyle(0x22cc66, 0.4);
-      g.fillCircle(px, py, 14);
-    }
+    if (isNew) {
+      this.discoveredPorts.add(port.id);
 
-    this.updateHUD();
-    this.saveGameState();
-    this.cameras.main.flash(300, 255, 255, 100, false);
+      port.specialties.forEach(s => {
+        this.collectedSpecialties.add(`${port.id}:${s.icon}`);
+      });
 
-    // Victory: all specialties collected
-    if (this.collectedSpecialties.size >= TOTAL_SPECIALTIES) {
-      setTimeout(() => {
-        this.scene.start('VictoryScene', {
-          character: this.character,
-          totalTime: Date.now() - this.gameStartTime,
-        });
-      }, 600);
-      return;
+      const g = this.portMarkers.get(port.id);
+      if (g) {
+        const px = lonToX(port.coords.lon);
+        const py = latToY(port.coords.lat);
+        g.clear();
+        g.fillStyle(0x44ff88);
+        g.fillCircle(px, py, 7);
+        g.fillStyle(0x22cc66, 0.4);
+        g.fillCircle(px, py, 14);
+      }
+
+      this.updateHUD();
+      this.saveGameState();
+      this.cameras.main.flash(300, 255, 255, 100, false);
+
+      if (this.collectedSpecialties.size >= TOTAL_SPECIALTIES) {
+        setTimeout(() => {
+          this.scene.start('VictoryScene', {
+            character: this.character,
+            totalTime: Date.now() - this.gameStartTime,
+          });
+        }, 600);
+        return;
+      }
     }
 
     this.scene.launch('PortScene', {
