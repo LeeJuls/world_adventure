@@ -68,8 +68,8 @@ export class WorldMapScene extends Phaser.Scene {
   private nearbyPort: Port | null = null;
   private miniMapStatic!: Phaser.GameObjects.Graphics;
   private miniMapDynamic!: Phaser.GameObjects.Graphics;
-  private shipStartX = lonToX(129.0);
-  private shipStartY = latToY(35.0);
+  private shipStartX = lonToX(125.8);
+  private shipStartY = latToY(37.4);
   private landPolygons: number[][][] = [];
   private landBounds: number[][] = [];
   private gameStartTime = 0;
@@ -98,8 +98,8 @@ export class WorldMapScene extends Phaser.Scene {
     this.discoveredPorts = new Set();
     this.collectedSpecialties = new Set();
     this.discoveredContinents = new Set(['east_asia']);
-    this.shipStartX = lonToX(129.0);
-    this.shipStartY = latToY(35.0);
+    this.shipStartX = lonToX(125.8);
+    this.shipStartY = latToY(37.4);
     this.buildPortContinentIndex();
     if (this.saveSlot !== null) {
       this.loadGameState(this.saveSlot);
