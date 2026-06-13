@@ -40,16 +40,24 @@ export interface GameState {
   playerLat: number;
   playerLon: number;
   lastPlayed: string;
+  discoveredContinents: string[];
 }
 
 export interface WorldMapSceneData {
   character: CharacterType;
+  saveSlot?: number;
+}
+
+export interface SaveSlotSceneData {
+  mode: 'save' | 'load';
+  gameState?: GameState;
 }
 
 export interface PortSceneData {
   port: Port;
   character: CharacterType;
   collectedSpecialties: string[];
+  isNewVisit?: boolean;
 }
 
 export interface LogbookSceneData {

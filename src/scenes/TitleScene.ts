@@ -46,22 +46,22 @@ export class TitleScene extends Phaser.Scene {
       color: '#88bbcc',
     }).setOrigin(0.5);
 
-    // Start button
-    const hasSave = !!localStorage.getItem('worldExplorerState');
+    // Start button — always begins a fresh new game
     const startBtn = this.createButton(width / 2, height / 2 + 80, '탐험 시작!', PALETTE.oceanLight);
     startBtn.on('pointerdown', () => {
       this.cameras.main.fadeOut(400);
       setTimeout(() => this.scene.start('CharacterSelectScene'), 420);
     });
 
+    const hasSave = Array.from({ length: 20 }, (_, i) =>
+      localStorage.getItem(`worldExplorer_slot_${i + 1}`)
+    ).some(Boolean);
+
     if (hasSave) {
       const contBtn = this.createButton(width / 2, height / 2 + 140, '이어하기', 0x2a7a2a);
       contBtn.on('pointerdown', () => {
-        const state = JSON.parse(localStorage.getItem('worldExplorerState')!);
         this.cameras.main.fadeOut(400);
-        setTimeout(() =>
-          this.scene.start('WorldMapScene', { character: state.character }), 420
-        );
+        setTimeout(() => this.scene.start('SaveSlotScene', { mode: 'load' }), 420);
       });
     }
 

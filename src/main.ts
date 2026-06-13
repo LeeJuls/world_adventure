@@ -5,6 +5,7 @@ import { WorldMapScene } from './scenes/WorldMapScene';
 import { PortScene } from './scenes/PortScene';
 import { LogbookScene } from './scenes/LogbookScene';
 import { VictoryScene } from './scenes/VictoryScene';
+import { SaveSlotScene } from './scenes/SaveSlotScene';
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -19,6 +20,7 @@ const config: Phaser.Types.Core.GameConfig = {
     PortScene,
     LogbookScene,
     VictoryScene,
+    SaveSlotScene,
   ],
   scale: {
     mode: Phaser.Scale.FIT,

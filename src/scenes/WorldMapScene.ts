@@ -7,6 +7,8 @@ const WORLD_H = 20480;
 const SHIP_SPEED = 280;
 const PORT_RADIUS = 550;
 const TOTAL_SPECIALTIES = 150;
+const MINI_W = 200;
+const MINI_H = 100;
 
 function lonToX(lon: number): number {
   return (lon + 180) / 360 * WORLD_W;
@@ -14,6 +16,34 @@ function lonToX(lon: number): number {
 function latToY(lat: number): number {
   return (90 - lat) / 180 * WORLD_H;
 }
+
+interface ContinentDef {
+  id: string;
+  nameKo: string;
+  isStart: boolean;
+  ports: string[];
+  box: [number, number, number, number]; // [lonMin, latMax, lonMax, latMin]
+}
+
+const CONTINENT_DEFS: ContinentDef[] = [
+  { id: 'east_asia',               nameKo: '동아시아',           isStart: true,  ports: ['seoul','tokyo','beijing','shanghai','hongkong'],                           box: [105,48,152,18] },
+  { id: 'southeast_asia',          nameKo: '동남아시아',          isStart: false, ports: ['singapore','bangkok','jakarta','hanoi'],                                    box: [115,25,122,-14] },
+  { id: 'south_asia',              nameKo: '남아시아',            isStart: false, ports: ['mumbai','kolkata','karachi'],                                               box: [58,35,98,2] },
+  { id: 'middle_east',             nameKo: '중동',               isStart: false, ports: ['dubai','riyadh'],                                                           box: [33,38,62,8] },
+  { id: 'western_europe',          nameKo: '서유럽',             isStart: false, ports: ['lisbon','madrid','paris','london','amsterdam','berlin','barcelona'],         box: [-18,58,20,33] },
+  { id: 'northern_europe',         nameKo: '북유럽',             isStart: false, ports: ['oslo','stockholm','copenhagen'],                                             box: [-5,72,32,52] },
+  { id: 'southern_europe',         nameKo: '남유럽·지중해',       isStart: false, ports: ['rome','venice','athens','istanbul'],                                         box: [4,50,38,32] },
+  { id: 'eastern_europe',          nameKo: '동유럽·러시아',       isStart: false, ports: ['moscow'],                                                                   box: [18,68,52,46] },
+  { id: 'north_africa',            nameKo: '북아프리카',          isStart: false, ports: ['cairo','casablanca','alexandria'],                                           box: [-20,40,38,18] },
+  { id: 'west_africa',             nameKo: '서아프리카',          isStart: false, ports: ['lagos','dakar'],                                                            box: [-26,20,12,-2] },
+  { id: 'east_africa',             nameKo: '동아프리카',          isStart: false, ports: ['zanzibar','nairobi'],                                                       box: [28,6,52,-14] },
+  { id: 'southern_africa',         nameKo: '남아프리카',          isStart: false, ports: ['cape_town'],                                                               box: [8,-18,38,-42] },
+  { id: 'north_america',           nameKo: '북아메리카',          isStart: false, ports: ['new_york','washington_dc','los_angeles','chicago'],                         box: [-130,54,-60,24] },
+  { id: 'central_america',         nameKo: '중앙아메리카·카리브해', isStart: false, ports: ['havana','mexico_city'],                                                     box: [-120,30,-70,8] },
+  { id: 'western_south_america',   nameKo: '남아메리카 서부',     isStart: false, ports: ['lima','santiago'],                                                          box: [-84,-3,-62,-42] },
+  { id: 'eastern_south_america',   nameKo: '남아메리카 동부',     isStart: false, ports: ['rio_de_janeiro','buenos_aires'],                                            box: [-70,-3,-32,-40] },
+  { id: 'oceania',                 nameKo: '오세아니아',          isStart: false, ports: ['sydney','melbourne','auckland'],                                             box: [136,-28,180,-48] },
+];
 
 export class WorldMapScene extends Phaser.Scene {
   private ship!: Phaser.GameObjects.Container;
@@ -34,12 +64,22 @@ export class WorldMapScene extends Phaser.Scene {
   private hudText!: Phaser.GameObjects.Text;
   private specialtyText!: Phaser.GameObjects.Text;
   private rankText!: Phaser.GameObjects.Text;
+  private posText!: Phaser.GameObjects.Text;
   private nearbyPort: Port | null = null;
+  private miniMapDynamic!: Phaser.GameObjects.Graphics;
   private shipStartX = lonToX(129.0);
   private shipStartY = latToY(35.0);
   private landPolygons: number[][][] = [];
   private landBounds: number[][] = [];
   private gameStartTime = 0;
+  private saveSlot: number | null = null;
+  private discoveredContinents: Set<string> = new Set();
+  private portToContinent: Map<string, string> = new Map();
+  private fogGraphics: Map<string, Phaser.GameObjects.Graphics> = new Map();
+  private fogLabels: Map<string, Phaser.GameObjects.Text> = new Map();
+  private pendingContinentReveal: string | null = null;
+  private isOverviewOpen = false;
+  private mapOverlayContainer: Phaser.GameObjects.Container | null = null;
 
   constructor() {
     super({ key: 'WorldMapScene' });
@@ -53,11 +93,22 @@ export class WorldMapScene extends Phaser.Scene {
 
   init(data: WorldMapSceneData): void {
     this.character = data.character ?? 'jun';
-    this.loadGameState();
+    this.saveSlot = data.saveSlot ?? null;
+    this.discoveredPorts = new Set();
+    this.collectedSpecialties = new Set();
+    this.discoveredContinents = new Set(['east_asia']);
+    this.shipStartX = lonToX(129.0);
+    this.shipStartY = latToY(35.0);
+    this.buildPortContinentIndex();
+    if (this.saveSlot !== null) {
+      this.loadGameState(this.saveSlot);
+    }
     this.gameStartTime = Date.now();
   }
 
   create(): void {
+    this.buildPortContinentIndex();
+
     // Land polygons for collision
     const lpData = this.cache.json.get('landPolygons');
     if (lpData) {
@@ -68,7 +119,10 @@ export class WorldMapScene extends Phaser.Scene {
     // Vector map — always sharp at any zoom
     this.drawVectorMap();
 
-    // Port markers
+    // Fog of war (depth 3 — above map, below port markers)
+    this.createFog();
+
+    // Port markers (depth 5 — visible through fog as navigation hints)
     this.ports = portsData.ports;
     this.drawPortMarkers();
 
@@ -82,6 +136,10 @@ export class WorldMapScene extends Phaser.Scene {
 
     // HUD (fixed to camera — all elements use setScrollFactor(0))
     this.createHUD();
+    this.createMiniMap();
+
+    // Listen for scene resume (after PortScene / SaveSlotScene / LogbookScene closes)
+    this.events.on('resume', this.onSceneResume, this);
 
     // Anchor hint (world-space object above nearby port)
     this.anchorHint = this.add.text(0, 0, '⚓ Space 로 발견!', {
@@ -105,6 +163,13 @@ export class WorldMapScene extends Phaser.Scene {
   update(_time: number, delta: number): void {
     this.handleShipMovement(delta);
     this.checkPortProximity();
+    this.updateMiniMap();
+
+    const lon = this.ship.x / WORLD_W * 360 - 180;
+    const lat = 90 - this.ship.y / WORLD_H * 180;
+    this.posText.setText(
+      `${Math.abs(lat).toFixed(1)}°${lat >= 0 ? 'N' : 'S'}  ${Math.abs(lon).toFixed(1)}°${lon >= 0 ? 'E' : 'W'}`
+    );
 
     if (Phaser.Input.Keyboard.JustDown(this.keySpace) && this.nearbyPort) {
       this.discoverPort(this.nearbyPort);
@@ -118,6 +183,7 @@ export class WorldMapScene extends Phaser.Scene {
   // ── Movement ──────────────────────────────────────────────────────────────
 
   private handleShipMovement(delta: number): void {
+    if (this.isOverviewOpen) return;
     const speed = SHIP_SPEED * (delta / 1000);
     let dx = 0, dy = 0;
 
@@ -151,6 +217,7 @@ export class WorldMapScene extends Phaser.Scene {
       for (let j = 0, k = poly.length - 1; j < poly.length; k = j++) {
         const xi = poly[j][0], yi = poly[j][1];
         const xk = poly[k][0], yk = poly[k][1];
+        if (Math.abs(xi - xk) > WORLD_W / 2) continue;
         if ((yi > py) !== (yk > py) &&
             px < ((xk - xi) * (py - yi)) / (yk - yi) + xi) {
           inside = !inside;
@@ -219,8 +286,13 @@ export class WorldMapScene extends Phaser.Scene {
       }
 
       this.updateHUD();
-      this.saveGameState();
       this.cameras.main.flash(300, 255, 255, 100, false);
+
+      // Fog reveal — check if this port belongs to an undiscovered continent
+      const continentId = this.portToContinent.get(port.id) ?? '';
+      if (continentId && !this.discoveredContinents.has(continentId)) {
+        this.revealContinent(continentId);
+      }
 
       if (this.collectedSpecialties.size >= TOTAL_SPECIALTIES) {
         setTimeout(() => {
@@ -237,6 +309,7 @@ export class WorldMapScene extends Phaser.Scene {
       port,
       character: this.character,
       collectedSpecialties: [...this.collectedSpecialties],
+      isNewVisit: isNew,
     });
     this.scene.pause();
   }
@@ -256,6 +329,7 @@ export class WorldMapScene extends Phaser.Scene {
         g.fillStyle(0x22cc66, 0.4);
         g.fillCircle(px, py, 14);
       }
+      g.setDepth(5);
       this.portMarkers.set(port.id, g);
     });
   }
@@ -292,14 +366,19 @@ export class WorldMapScene extends Phaser.Scene {
       g.lineBetween(0, y, WORLD_W, y);
     }
 
-    // Land polygons — filled then stroked for crisp coastlines
+    // Land polygons — split at antimeridian to avoid cross-map artifacts
     g.fillStyle(0x7ab648, 1);
     this.landPolygons.forEach(poly => {
       if (poly.length < 3) return;
       g.beginPath();
       g.moveTo(poly[0][0], poly[0][1]);
       for (let i = 1; i < poly.length; i++) {
-        g.lineTo(poly[i][0], poly[i][1]);
+        if (Math.abs(poly[i][0] - poly[i - 1][0]) > WORLD_W / 2) {
+          g.closePath(); g.fillPath();
+          g.beginPath(); g.moveTo(poly[i][0], poly[i][1]);
+        } else {
+          g.lineTo(poly[i][0], poly[i][1]);
+        }
       }
       g.closePath();
       g.fillPath();
@@ -311,11 +390,111 @@ export class WorldMapScene extends Phaser.Scene {
       g.beginPath();
       g.moveTo(poly[0][0], poly[0][1]);
       for (let i = 1; i < poly.length; i++) {
-        g.lineTo(poly[i][0], poly[i][1]);
+        if (Math.abs(poly[i][0] - poly[i - 1][0]) > WORLD_W / 2) {
+          g.closePath(); g.strokePath();
+          g.beginPath(); g.moveTo(poly[i][0], poly[i][1]);
+        } else {
+          g.lineTo(poly[i][0], poly[i][1]);
+        }
       }
       g.closePath();
       g.strokePath();
     });
+  }
+
+  // ── Mini-map ──────────────────────────────────────────────────────────────
+
+  private createMiniMap(): void {
+    const { width, height } = this.scale;
+    const ox = width - MINI_W - 8;
+    const oy = height - MINI_H - 8;
+    const sx = MINI_W / WORLD_W;
+    const sy = MINI_H / WORLD_H;
+
+    const staticG = this.add.graphics().setScrollFactor(0).setDepth(21);
+
+    // Ocean background
+    staticG.fillStyle(0x1a6b8a, 0.9);
+    staticG.fillRect(ox, oy, MINI_W, MINI_H);
+
+    // Land polygons — skip consecutive points within 0.5px at mini scale; split at antimeridian
+    staticG.fillStyle(0x5a8a32, 1);
+    this.landPolygons.forEach(poly => {
+      if (poly.length < 3) return;
+      let prevMx = -999, prevMy = -999;
+      let pts: { x: number; y: number }[] = [];
+
+      const flush = () => {
+        if (pts.length < 3) { pts = []; prevMx = -999; prevMy = -999; return; }
+        staticG.beginPath();
+        staticG.moveTo(pts[0].x, pts[0].y);
+        for (let i = 1; i < pts.length; i++) staticG.lineTo(pts[i].x, pts[i].y);
+        staticG.closePath();
+        staticG.fillPath();
+        pts = []; prevMx = -999; prevMy = -999;
+      };
+
+      for (let k = 0; k < poly.length; k++) {
+        if (k > 0 && Math.abs(poly[k][0] - poly[k - 1][0]) > WORLD_W / 2) flush();
+        const mx = ox + poly[k][0] * sx;
+        const my = oy + poly[k][1] * sy;
+        if (Math.abs(mx - prevMx) > 0.5 || Math.abs(my - prevMy) > 0.5) {
+          pts.push({ x: mx, y: my });
+          prevMx = mx; prevMy = my;
+        }
+      }
+      flush();
+    });
+
+    // Border
+    staticG.lineStyle(1, 0xffffff, 0.6);
+    staticG.strokeRect(ox, oy, MINI_W, MINI_H);
+
+    // Label
+    this.add.text(ox + 4, oy + 2, '미니맵', {
+      fontSize: '9px', color: '#aaddff',
+    }).setScrollFactor(0).setDepth(23);
+
+    // Dynamic layer (ports + ship + viewport rect)
+    this.miniMapDynamic = this.add.graphics().setScrollFactor(0).setDepth(22);
+
+    // Transparent click area over minimap to open world overview
+    const clickArea = this.add.rectangle(
+      ox + MINI_W / 2, oy + MINI_H / 2, MINI_W, MINI_H, 0x000000, 0,
+    ).setScrollFactor(0).setDepth(24).setInteractive({ useHandCursor: true });
+    clickArea.on('pointerdown', () => this.toggleMapOverview());
+  }
+
+  private updateMiniMap(): void {
+    const { width, height } = this.scale;
+    const ox = width - MINI_W - 8;
+    const oy = height - MINI_H - 8;
+    const sx = MINI_W / WORLD_W;
+    const sy = MINI_H / WORLD_H;
+    const g = this.miniMapDynamic;
+    g.clear();
+
+    // Camera viewport rect
+    const cam = this.cameras.main;
+    const vx = ox + cam.scrollX * sx;
+    const vy = oy + cam.scrollY * sy;
+    const vw = cam.width * sx;
+    const vh = cam.height * sy;
+    g.lineStyle(1, 0xffffff, 0.5);
+    g.strokeRect(vx, vy, vw, vh);
+
+    // Port dots
+    for (const port of this.ports) {
+      const mx = ox + lonToX(port.coords.lon) * sx;
+      const my = oy + latToY(port.coords.lat) * sy;
+      const found = this.discoveredPorts.has(port.id);
+      g.fillStyle(found ? 0x44ff88 : 0xe8c870, 1);
+      g.fillCircle(mx, my, found ? 2.5 : 2);
+    }
+
+    // Ship dot
+    g.fillStyle(0xffffff, 1);
+    g.fillCircle(ox + this.ship.x * sx, oy + this.ship.y * sy, 3);
   }
 
   // ── HUD ───────────────────────────────────────────────────────────────────
@@ -341,6 +520,24 @@ export class WorldMapScene extends Phaser.Scene {
     this.rankText = this.add.text(360, 34, '🚢 견습 선원', {
       fontSize: '13px', color: '#88cc88',
     }).setScrollFactor(0).setDepth(20);
+
+    this.posText = this.add.text(510, 34, '', {
+      fontSize: '13px', color: '#ccddff',
+    }).setOrigin(0, 0.5).setScrollFactor(0).setDepth(20);
+
+    const saveBtn = this.add.text(width - 130, 32, '💾 저장', {
+      fontSize: '16px',
+      color: '#aaffcc',
+      backgroundColor: 'rgba(30,90,50,0.7)',
+      padding: { x: 10, y: 6 },
+    }).setOrigin(1, 0.5).setScrollFactor(0).setDepth(20).setInteractive({ useHandCursor: true });
+
+    saveBtn.on('pointerover', () => saveBtn.setAlpha(0.8));
+    saveBtn.on('pointerout', () => saveBtn.setAlpha(1));
+    saveBtn.on('pointerdown', () => {
+      this.scene.launch('SaveSlotScene', { mode: 'save', gameState: this.buildCurrentGameState() });
+      this.scene.pause();
+    });
 
     const logBtn = this.add.text(width - 16, 32, '📖 기록장', {
       fontSize: '18px',
@@ -380,17 +577,28 @@ export class WorldMapScene extends Phaser.Scene {
 
   // ── Persistence ───────────────────────────────────────────────────────────
 
-  private loadGameState(): void {
-    const saved = localStorage.getItem('worldExplorerState');
+  private loadGameState(slot: number): void {
+    const saved = localStorage.getItem(`worldExplorer_slot_${slot}`);
     if (!saved) return;
     try {
       const state: GameState = JSON.parse(saved);
-      if (state.character === this.character) {
-        this.discoveredPorts = new Set(state.discoveredPorts ?? []);
-        this.collectedSpecialties = new Set(state.collectedSpecialties ?? []);
-        if (state.playerLat != null && state.playerLon != null) {
-          this.shipStartX = lonToX(state.playerLon);
-          this.shipStartY = latToY(state.playerLat);
+      this.discoveredPorts = new Set(state.discoveredPorts ?? []);
+      this.collectedSpecialties = new Set(state.collectedSpecialties ?? []);
+      if (state.playerLat != null && state.playerLon != null) {
+        this.shipStartX = lonToX(state.playerLon);
+        this.shipStartY = latToY(state.playerLat);
+      }
+
+      // Restore discovered continents (east_asia always included)
+      const base = new Set<string>(['east_asia']);
+      if (state.discoveredContinents && state.discoveredContinents.length > 0) {
+        this.discoveredContinents = new Set([...base, ...state.discoveredContinents]);
+      } else {
+        // Migrate old saves: derive continents from discovered ports
+        this.discoveredContinents = base;
+        for (const portId of state.discoveredPorts ?? []) {
+          const cid = this.portToContinent.get(portId);
+          if (cid) this.discoveredContinents.add(cid);
         }
       }
     } catch {
@@ -398,10 +606,217 @@ export class WorldMapScene extends Phaser.Scene {
     }
   }
 
-  private saveGameState(): void {
+  private createFog(): void {
+    for (const def of CONTINENT_DEFS) {
+      if (this.discoveredContinents.has(def.id)) continue;
+
+      const x = lonToX(def.box[0]);
+      const y = latToY(def.box[1]);
+      const w = lonToX(def.box[2]) - x;
+      const h = latToY(def.box[3]) - y;
+
+      const gfx = this.add.graphics();
+      gfx.fillStyle(0x040a14, 0.82);
+      gfx.fillRect(x, y, w, h);
+      gfx.setDepth(3);
+      this.fogGraphics.set(def.id, gfx);
+
+      const rawSize = Math.round(Math.min(w, h) * 0.12);
+      const fontSize = Math.max(rawSize, 80);
+      const lbl = this.add.text(x + w / 2, y + h / 2, '???', {
+        fontSize: `${fontSize}px`,
+        color: '#8899aa',
+        stroke: '#000000',
+        strokeThickness: Math.round(fontSize * 0.07),
+      }).setOrigin(0.5).setDepth(3);
+      this.fogLabels.set(def.id, lbl);
+    }
+  }
+
+  private revealContinent(continentId: string): void {
+    const gfx = this.fogGraphics.get(continentId);
+    if (!gfx) return; // already revealed or in progress (double-call guard)
+
+    const lbl = this.fogLabels.get(continentId);
+    // Remove from maps immediately so double-calls become no-ops
+    this.fogGraphics.delete(continentId);
+    this.fogLabels.delete(continentId);
+    this.discoveredContinents.add(continentId);
+
+    this.tweens.add({
+      targets: [gfx, lbl].filter(Boolean),
+      alpha: 0,
+      duration: 1400,
+      ease: 'Cubic.Out',
+      onComplete: () => { gfx.destroy(); lbl?.destroy(); },
+    });
+
+    // Banner displayed after scene resumes (avoids mid-animation freeze during pause)
+    this.pendingContinentReveal = continentId;
+  }
+
+  private onSceneResume(): void {
+    if (this.pendingContinentReveal) {
+      const id = this.pendingContinentReveal;
+      this.pendingContinentReveal = null;
+      const def = CONTINENT_DEFS.find(d => d.id === id);
+      if (def) this.showContinentBanner(def.nameKo);
+    }
+  }
+
+  private showContinentBanner(nameKo: string): void {
+    const { width } = this.scale;
+    const banner = this.add.text(width / 2, 60, `🌍 새로운 대륙 발견!  ${nameKo}`, {
+      fontSize: '22px', color: '#ffdd44', fontStyle: 'bold',
+      backgroundColor: 'rgba(0,16,48,0.90)',
+      padding: { x: 20, y: 10 },
+      stroke: '#000000', strokeThickness: 2,
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(30).setAlpha(0);
+
+    this.tweens.chain({
+      targets: banner,
+      tweens: [
+        { y: 84, alpha: 1, duration: 400, ease: 'Cubic.Out' },
+        { alpha: 1, duration: 2500 },
+        { alpha: 0, duration: 500, ease: 'Cubic.In', onComplete: () => banner.destroy() },
+      ],
+    });
+  }
+
+  private toggleMapOverview(): void {
+    if (this.mapOverlayContainer) { this.hideMapOverview(); return; }
+    this.showMapOverview();
+  }
+
+  private showMapOverview(): void {
+    if (this.mapOverlayContainer) return;
+    this.isOverviewOpen = true;
+
+    const { width, height } = this.scale;
+    const container = this.add.container(width / 2, height / 2);
+    container.setScrollFactor(0).setDepth(40);
+    this.mapOverlayContainer = container;
+
+    const MX = -320, MY = -140, MW = 640, MH = 300;
+    const sx = MW / WORLD_W;
+    const sy = MH / WORLD_H;
+
+    container.add(this.add.rectangle(0, 0, 720, 400, 0x0a1628, 0.96).setStrokeStyle(2, 0xffdd88));
+    container.add(this.add.text(0, -180, '🗺 세계 탐험 현황', {
+      fontSize: '20px', color: '#ffdd88', fontStyle: 'bold',
+    }).setOrigin(0.5));
+
+    const closeBtn = this.add.text(342, -182, '✕', {
+      fontSize: '18px', color: '#fff',
+      backgroundColor: 'rgba(180,40,40,0.7)',
+      padding: { x: 7, y: 3 },
+    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+    closeBtn.on('pointerdown', () => this.hideMapOverview());
+    container.add(closeBtn);
+
+    const mapGfx = this.add.graphics();
+    mapGfx.fillStyle(0x1a6b8a, 1);
+    mapGfx.fillRect(MX, MY, MW, MH);
+
+    // Land outline (antimeridian-safe, same logic as minimap)
+    mapGfx.fillStyle(0x5a8a32, 1);
+    this.landPolygons.forEach(poly => {
+      if (poly.length < 3) return;
+      let pts: { x: number; y: number }[] = [];
+      let prevMx = -999, prevMy = -999;
+
+      const flush = () => {
+        if (pts.length < 3) { pts = []; prevMx = -999; prevMy = -999; return; }
+        mapGfx.beginPath();
+        mapGfx.moveTo(pts[0].x, pts[0].y);
+        for (let i = 1; i < pts.length; i++) mapGfx.lineTo(pts[i].x, pts[i].y);
+        mapGfx.closePath();
+        mapGfx.fillPath();
+        pts = []; prevMx = -999; prevMy = -999;
+      };
+
+      for (let k = 0; k < poly.length; k++) {
+        if (k > 0 && Math.abs(poly[k][0] - poly[k - 1][0]) > WORLD_W / 2) flush();
+        const mx = MX + poly[k][0] * sx;
+        const my = MY + poly[k][1] * sy;
+        if (Math.abs(mx - prevMx) > 0.5 || Math.abs(my - prevMy) > 0.5) {
+          pts.push({ x: mx, y: my });
+          prevMx = mx; prevMy = my;
+        }
+      }
+      flush();
+    });
+    container.add(mapGfx);
+
+    // Fog + continent labels
+    const fogG = this.add.graphics();
+    CONTINENT_DEFS.forEach(def => {
+      if (this.discoveredContinents.has(def.id)) {
+        const lx = MX + (lonToX(def.box[0]) + lonToX(def.box[2])) / 2 * sx;
+        const ly = MY + (latToY(def.box[1]) + latToY(def.box[3])) / 2 * sy;
+        container.add(this.add.text(lx, ly, def.nameKo, {
+          fontSize: '9px', color: '#ffdd88',
+        }).setOrigin(0.5));
+      } else {
+        const fx = MX + lonToX(def.box[0]) * sx;
+        const fy = MY + latToY(def.box[1]) * sy;
+        const fw = (lonToX(def.box[2]) - lonToX(def.box[0])) * sx;
+        const fh = (latToY(def.box[3]) - latToY(def.box[1])) * sy;
+        fogG.fillStyle(0x020408, 0.78);
+        fogG.fillRect(fx, fy, fw, fh);
+      }
+    });
+    container.add(fogG);
+
+    // Port dots (only for discovered continents)
+    const portG = this.add.graphics();
+    this.ports.forEach(p => {
+      const contId = this.portToContinent.get(p.id);
+      if (!contId || !this.discoveredContinents.has(contId)) return;
+      const dx = MX + lonToX(p.coords.lon) * sx;
+      const dy = MY + latToY(p.coords.lat) * sy;
+      if (this.discoveredPorts.has(p.id)) {
+        portG.fillStyle(0x44ff88, 1); portG.fillCircle(dx, dy, 3);
+      } else {
+        portG.fillStyle(0xe8c870, 1); portG.fillCircle(dx, dy, 2);
+      }
+    });
+    container.add(portG);
+
+    // Stats
+    const nCont = this.discoveredContinents.size;
+    container.add(this.add.text(0, 170,
+      `발견: ${this.discoveredPorts.size} / 50 항구   ·   ${nCont} / 17 대륙`, {
+        fontSize: '13px', color: '#aaddff',
+      }).setOrigin(0.5));
+
+    // ESC to close
+    const onEsc = () => this.hideMapOverview();
+    this.input.keyboard!.once('keydown-ESC', onEsc);
+    container.setData('escHandler', onEsc);
+  }
+
+  private hideMapOverview(): void {
+    if (!this.mapOverlayContainer) return;
+    const onEsc = this.mapOverlayContainer.getData('escHandler');
+    if (onEsc) this.input.keyboard!.off('keydown-ESC', onEsc);
+    this.mapOverlayContainer.destroy();
+    this.mapOverlayContainer = null;
+    this.isOverviewOpen = false;
+  }
+
+  private buildPortContinentIndex(): void {
+    for (const def of CONTINENT_DEFS) {
+      for (const portId of def.ports) {
+        this.portToContinent.set(portId, def.id);
+      }
+    }
+  }
+
+  private buildCurrentGameState(): GameState {
     const lon = (this.ship?.x ?? this.shipStartX) / WORLD_W * 360 - 180;
     const lat = 90 - (this.ship?.y ?? this.shipStartY) / WORLD_H * 180;
-    const state: GameState = {
+    return {
       character: this.character,
       discoveredPorts: [...this.discoveredPorts],
       collectedSpecialties: [...this.collectedSpecialties],
@@ -409,7 +824,7 @@ export class WorldMapScene extends Phaser.Scene {
       playerLat: lat,
       playerLon: lon,
       lastPlayed: new Date().toISOString(),
+      discoveredContinents: [...this.discoveredContinents],
     };
-    localStorage.setItem('worldExplorerState', JSON.stringify(state));
   }
 }
