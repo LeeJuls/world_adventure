@@ -1,0 +1,52 @@
+{
+  "title": {
+    "gameTitle": "세계 탐험",
+    "subtitle": "World Explorer",
+    "startButton": "탐험 시작!",
+    "continueButton": "이어하기"
+  },
+  "characterSelect": {
+    "prompt": "누구와 함께 떠날까?",
+    "junName": "항해사 준",
+    "junTitle": "Jun the Navigator",
+    "junDesc": "밝고 호기심 많은 항해사!\n세계 곳곳을 누비며\n신기한 것을 발견해요.",
+    "araName": "탐험가 아라",
+    "araTitle": "Ara the Explorer",
+    "araDesc": "용감하고 지식욕 강한 탐험가!\n각 나라의 비밀을\n노트에 기록해요.",
+    "selectButton": "선택하기!"
+  },
+  "worldMap": {
+    "discovered": "발견",
+    "total": "50",
+    "logbookButton": "기록장",
+    "portHint": "A 키로 발견!"
+  },
+  "port": {
+    "landmark": "대표 명소",
+    "specialties": "특산품",
+    "funFact": "재미있는 사실!",
+    "closeButton": "닫기",
+    "stampMessage": "새로운 도시를 발견했어요!",
+    "country": "나라"
+  },
+  "logbook": {
+    "title": "탐험 기록장",
+    "progress": "발견한 도시",
+    "backButton": "← 지도로 돌아가기",
+    "undiscovered": "미발견"
+  },
+  "ranks": {
+    "apprentice": "🚢 견습 선원",
+    "apprenticeEn": "Apprentice Sailor",
+    "apprenticeRange": "0~5개",
+    "explorer": "⚓ 탐험가",
+    "explorerEn": "Explorer",
+    "explorerRange": "6~15개",
+    "navigator": "🗺️ 항해사",
+    "navigatorEn": "Navigator",
+    "navigatorRange": "16~30개",
+    "voyager": "🌍 세계 일주 달인",
+    "voyagerEn": "World Voyager",
+    "voyagerRange": "31~50개"
+  }
+}

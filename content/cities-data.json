@@ -1,0 +1,1756 @@
+{
+  "version": "1.0",
+  "total": 50,
+  "ports": [
+    {
+      "id": "seoul",
+      "nameKo": "서울",
+      "nameEn": "Seoul",
+      "countryKo": "대한민국",
+      "countryEn": "South Korea",
+      "region": "asia",
+      "coords": { "x": 760, "y": 270 },
+      "specialties": [
+        {
+          "icon": "kimchi",
+          "nameKo": "김치",
+          "nameEn": "Kimchi",
+          "descKo": "배추를 소금에 절인 뒤 고추와 마늘로 양념해 숙성시킨 한국의 대표 음식이에요"
+        },
+        {
+          "icon": "semiconductor",
+          "nameKo": "반도체",
+          "nameEn": "Semiconductor",
+          "descKo": "스마트폰과 컴퓨터의 두뇌 역할을 하는 아주 작은 전자 부품이에요"
+        },
+        {
+          "icon": "kpop",
+          "nameKo": "K-pop",
+          "nameEn": "K-pop",
+          "descKo": "전 세계 사람들이 따라 부르고 춤추는 신나는 한국 음악이에요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "경복궁",
+        "nameEn": "Gyeongbokgung Palace",
+        "descKo": "600년이 넘은 조선 왕들의 궁궐로, 화려한 지붕이 아름다워요"
+      },
+      "funFact": "서울 지하철은 하루에 무려 700만 명이 이용하는 세계에서 가장 바쁜 지하철 중 하나예요!"
+    },
+    {
+      "id": "tokyo",
+      "nameKo": "도쿄",
+      "nameEn": "Tokyo",
+      "countryKo": "일본",
+      "countryEn": "Japan",
+      "region": "asia",
+      "coords": { "x": 800, "y": 280 },
+      "specialties": [
+        {
+          "icon": "sushi",
+          "nameKo": "스시",
+          "nameEn": "Sushi",
+          "descKo": "신선한 생선을 밥 위에 올린 일본의 가장 유명한 음식이에요"
+        },
+        {
+          "icon": "anime",
+          "nameKo": "애니메이션",
+          "nameEn": "Anime",
+          "descKo": "전 세계 어린이들이 좋아하는 일본 만화 영화예요"
+        },
+        {
+          "icon": "car",
+          "nameKo": "자동차",
+          "nameEn": "Automobile",
+          "descKo": "도요타, 혼다 등 세계 최고 수준의 자동차를 만드는 나라예요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "도쿄 타워",
+        "nameEn": "Tokyo Tower",
+        "descKo": "333미터 높이의 빨간 철탑으로 도쿄를 한눈에 볼 수 있어요"
+      },
+      "funFact": "도쿄는 세계에서 인구가 가장 많은 도시로 무려 1,400만 명이 살고 있어요!"
+    },
+    {
+      "id": "beijing",
+      "nameKo": "베이징",
+      "nameEn": "Beijing",
+      "countryKo": "중국",
+      "countryEn": "China",
+      "region": "asia",
+      "coords": { "x": 740, "y": 260 },
+      "specialties": [
+        {
+          "icon": "peking_duck",
+          "nameKo": "베이징 오리구이",
+          "nameEn": "Peking Duck",
+          "descKo": "바삭하게 구운 오리 요리로 600년 넘는 역사를 가진 베이징 대표 음식이에요"
+        },
+        {
+          "icon": "silk",
+          "nameKo": "비단",
+          "nameEn": "Silk",
+          "descKo": "누에고치에서 뽑아 만든 아주 부드럽고 고운 천이에요"
+        },
+        {
+          "icon": "tea",
+          "nameKo": "차",
+          "nameEn": "Tea",
+          "descKo": "수천 년 전 중국에서 처음 마시기 시작한 음료로 지금도 세계에서 가장 많이 마셔요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "자금성",
+        "nameEn": "Forbidden City",
+        "descKo": "600년 전 지어진 황제의 궁궐로 방이 무려 9,999개나 있대요"
+      },
+      "funFact": "베이징 근처 만리장성은 길이가 무려 21,000킬로미터로, 지구를 반 바퀴 돌 수 있어요!"
+    },
+    {
+      "id": "shanghai",
+      "nameKo": "상하이",
+      "nameEn": "Shanghai",
+      "countryKo": "중국",
+      "countryEn": "China",
+      "region": "asia",
+      "coords": { "x": 760, "y": 290 },
+      "specialties": [
+        {
+          "icon": "xiaolongbao",
+          "nameKo": "샤오룽바오",
+          "nameEn": "Xiaolongbao",
+          "descKo": "얇은 피 안에 뜨거운 국물이 들어있는 신기한 만두예요"
+        },
+        {
+          "icon": "shipping",
+          "nameKo": "무역항",
+          "nameEn": "Shipping Port",
+          "descKo": "세계에서 화물이 가장 많이 드나드는 항구 도시예요"
+        },
+        {
+          "icon": "finance",
+          "nameKo": "금융",
+          "nameEn": "Finance",
+          "descKo": "아시아에서 가장 중요한 돈과 경제의 중심 도시예요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "동방명주 타워",
+        "nameEn": "Oriental Pearl Tower",
+        "descKo": "구슬 모양 동그라미들이 달려 있는 특이하고 화려한 468미터 방송탑이에요"
+      },
+      "funFact": "상하이 항구에서 1년 동안 실어 나르는 화물은 컨테이너 박스로 4,700만 개나 돼요!"
+    },
+    {
+      "id": "hongkong",
+      "nameKo": "홍콩",
+      "nameEn": "Hong Kong",
+      "countryKo": "중국 (홍콩 특별행정구)",
+      "countryEn": "Hong Kong SAR, China",
+      "region": "asia",
+      "coords": { "x": 750, "y": 310 },
+      "specialties": [
+        {
+          "icon": "dim_sum",
+          "nameKo": "딤섬",
+          "nameEn": "Dim Sum",
+          "descKo": "작은 바구니에 담긴 한 입 크기 만두와 요리들로 홍콩의 아침 식사 문화예요"
+        },
+        {
+          "icon": "finance",
+          "nameKo": "금융",
+          "nameEn": "Finance",
+          "descKo": "세계에서 손꼽히는 금융 중심지로 수많은 은행이 모여 있어요"
+        },
+        {
+          "icon": "tram",
+          "nameKo": "트램",
+          "nameEn": "Tram",
+          "descKo": "100년 넘게 홍콩 거리를 달리고 있는 2층 전차예요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "빅토리아 피크",
+        "nameEn": "Victoria Peak",
+        "descKo": "산 꼭대기에서 홍콩의 화려한 야경을 한눈에 내려다볼 수 있어요"
+      },
+      "funFact": "홍콩에는 세계에서 가장 긴 야외 에스컬레이터가 있어요! 길이가 800미터나 된답니다!"
+    },
+    {
+      "id": "singapore",
+      "nameKo": "싱가포르",
+      "nameEn": "Singapore",
+      "countryKo": "싱가포르",
+      "countryEn": "Singapore",
+      "region": "asia",
+      "coords": { "x": 740, "y": 340 },
+      "specialties": [
+        {
+          "icon": "chili_crab",
+          "nameKo": "칠리 크랩",
+          "nameEn": "Chili Crab",
+          "descKo": "매콤달콤한 소스에 버무린 게 요리로 싱가포르를 대표하는 음식이에요"
+        },
+        {
+          "icon": "electronics",
+          "nameKo": "전자제품",
+          "nameEn": "Electronics",
+          "descKo": "첨단 반도체와 전자 부품을 많이 만들어 세계에 수출해요"
+        },
+        {
+          "icon": "garden",
+          "nameKo": "정원",
+          "nameEn": "Garden City",
+          "descKo": "도시 곳곳에 나무와 꽃이 가득해서 '정원 도시'라고 불려요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "가든스 바이 더 베이",
+        "nameEn": "Gardens by the Bay",
+        "descKo": "18층 높이의 거대한 인공 나무 조형물들이 밤에 빛을 내며 빛나요"
+      },
+      "funFact": "싱가포르는 서울의 약 1/12 크기인 작은 나라인데, 세계에서 가장 잘 사는 나라 중 하나예요!"
+    },
+    {
+      "id": "bangkok",
+      "nameKo": "방콕",
+      "nameEn": "Bangkok",
+      "countryKo": "태국",
+      "countryEn": "Thailand",
+      "region": "asia",
+      "coords": { "x": 720, "y": 315 },
+      "specialties": [
+        {
+          "icon": "pad_thai",
+          "nameKo": "팟타이",
+          "nameEn": "Pad Thai",
+          "descKo": "달콤하고 새콤한 볶음 국수로 전 세계 사람들이 좋아하는 태국 음식이에요"
+        },
+        {
+          "icon": "elephant",
+          "nameKo": "코끼리",
+          "nameEn": "Elephant",
+          "descKo": "태국의 상징 동물로, 예전엔 일도 하고 전쟁에도 나간 아주 중요한 동물이에요"
+        },
+        {
+          "icon": "temple",
+          "nameKo": "불교 사원",
+          "nameEn": "Buddhist Temple",
+          "descKo": "금빛으로 반짝이는 아름다운 사원들이 도시 곳곳에 있어요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "왓 프라깨우",
+        "nameEn": "Wat Phra Kaew",
+        "descKo": "에메랄드 부처님을 모신 태국에서 가장 신성하고 아름다운 사원이에요"
+      },
+      "funFact": "방콕의 정식 이름은 세계에서 가장 긴 도시 이름으로 무려 169자나 돼요!"
+    },
+    {
+      "id": "mumbai",
+      "nameKo": "뭄바이",
+      "nameEn": "Mumbai",
+      "countryKo": "인도",
+      "countryEn": "India",
+      "region": "asia",
+      "coords": { "x": 660, "y": 310 },
+      "specialties": [
+        {
+          "icon": "bollywood",
+          "nameKo": "볼리우드",
+          "nameEn": "Bollywood",
+          "descKo": "화려한 춤과 노래가 가득한 인도 영화로, 1년에 1,000편 이상 만들어져요"
+        },
+        {
+          "icon": "textile",
+          "nameKo": "면화",
+          "nameEn": "Cotton",
+          "descKo": "부드러운 옷감을 만드는 면화를 많이 생산하고 거래하는 곳이에요"
+        },
+        {
+          "icon": "curry",
+          "nameKo": "커리",
+          "nameEn": "Curry",
+          "descKo": "여러 가지 향신료를 섞어 만든 맵고 향긋한 인도의 대표 음식이에요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "인도의 문",
+        "nameEn": "Gateway of India",
+        "descKo": "바다 앞에 우뚝 선 26미터 높이의 돌로 만든 거대한 문이에요"
+      },
+      "funFact": "뭄바이는 인도에서 가장 큰 도시로, 하루에 영화관에서 무려 1,400만 명이 영화를 봐요!"
+    },
+    {
+      "id": "kolkata",
+      "nameKo": "콜카타",
+      "nameEn": "Kolkata",
+      "countryKo": "인도",
+      "countryEn": "India",
+      "region": "asia",
+      "coords": { "x": 685, "y": 295 },
+      "specialties": [
+        {
+          "icon": "jute",
+          "nameKo": "황마",
+          "nameEn": "Jute",
+          "descKo": "가마니, 자루, 카펫을 만드는 식물 섬유로 인도에서 많이 생산돼요"
+        },
+        {
+          "icon": "sweets",
+          "nameKo": "미타이",
+          "nameEn": "Mithai",
+          "descKo": "우유와 설탕으로 만든 달콤한 인도 과자로 종류가 수백 가지나 돼요"
+        },
+        {
+          "icon": "literature",
+          "nameKo": "문학",
+          "nameEn": "Literature",
+          "descKo": "노벨 문학상을 받은 시인 타고르가 태어난 문학과 예술의 도시예요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "빅토리아 기념관",
+        "nameEn": "Victoria Memorial",
+        "descKo": "새하얀 대리석으로 지어진 아름다운 궁전 같은 박물관이에요"
+      },
+      "funFact": "콜카타에는 인도에서 유일하게 아직도 사람이 손으로 끄는 인력거가 다녀요!"
+    },
+    {
+      "id": "jakarta",
+      "nameKo": "자카르타",
+      "nameEn": "Jakarta",
+      "countryKo": "인도네시아",
+      "countryEn": "Indonesia",
+      "region": "asia",
+      "coords": { "x": 740, "y": 355 },
+      "specialties": [
+        {
+          "icon": "batik",
+          "nameKo": "바틱",
+          "nameEn": "Batik",
+          "descKo": "밀랍으로 무늬를 그린 뒤 색을 입히는 인도네시아 전통 천 공예예요"
+        },
+        {
+          "icon": "palm_oil",
+          "nameKo": "팜유",
+          "nameEn": "Palm Oil",
+          "descKo": "야자나무 열매에서 짜낸 기름으로 과자, 화장품에 많이 쓰여요"
+        },
+        {
+          "icon": "nasi_goreng",
+          "nameKo": "나시고렝",
+          "nameEn": "Nasi Goreng",
+          "descKo": "인도네시아식 볶음밥으로 달콤하고 짭조름한 맛이 나요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "모나스 탑",
+        "nameEn": "National Monument (Monas)",
+        "descKo": "꼭대기에 금빛 불꽃이 달린 132미터 높이의 독립 기념탑이에요"
+      },
+      "funFact": "인도네시아는 섬이 무려 17,000개가 넘는 세계에서 섬이 가장 많은 나라예요!"
+    },
+    {
+      "id": "hanoi",
+      "nameKo": "하노이",
+      "nameEn": "Hanoi",
+      "countryKo": "베트남",
+      "countryEn": "Vietnam",
+      "region": "asia",
+      "coords": { "x": 730, "y": 300 },
+      "specialties": [
+        {
+          "icon": "pho",
+          "nameKo": "쌀국수 (퍼)",
+          "nameEn": "Pho",
+          "descKo": "쌀로 만든 국수에 쇠고기 국물을 부어 먹는 베트남의 국민 음식이에요"
+        },
+        {
+          "icon": "coffee",
+          "nameKo": "커피",
+          "nameEn": "Coffee",
+          "descKo": "베트남은 세계에서 두 번째로 커피를 많이 수출하는 나라예요"
+        },
+        {
+          "icon": "lotus",
+          "nameKo": "연꽃",
+          "nameEn": "Lotus",
+          "descKo": "베트남의 국화로 진흙 속에서도 아름답게 피어나는 꽃이에요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "호안끼엠 호수",
+        "nameEn": "Hoan Kiem Lake",
+        "descKo": "도시 한가운데 있는 아름다운 호수로, 거북이 전설이 전해지는 곳이에요"
+      },
+      "funFact": "베트남 사람들은 자전거와 오토바이를 아주 많이 타서, 하노이 거리에는 하루에 수백만 대가 달려요!"
+    },
+    {
+      "id": "karachi",
+      "nameKo": "카라치",
+      "nameEn": "Karachi",
+      "countryKo": "파키스탄",
+      "countryEn": "Pakistan",
+      "region": "asia",
+      "coords": { "x": 645, "y": 285 },
+      "specialties": [
+        {
+          "icon": "biryani",
+          "nameKo": "비리야니",
+          "nameEn": "Biryani",
+          "descKo": "향신료를 넣고 고기와 쌀을 함께 지은 파키스탄의 대표 밥 요리예요"
+        },
+        {
+          "icon": "cotton",
+          "nameKo": "면직물",
+          "nameEn": "Cotton Textile",
+          "descKo": "파키스탄은 세계에서 면직물을 가장 많이 수출하는 나라 중 하나예요"
+        },
+        {
+          "icon": "truck_art",
+          "nameKo": "트럭 아트",
+          "nameEn": "Truck Art",
+          "descKo": "화물차를 꽃무늬와 그림으로 화려하게 장식하는 파키스탄만의 독특한 예술이에요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "모이나 칸 오래된 거리",
+        "nameEn": "Mohatta Palace",
+        "descKo": "분홍빛 돌로 지어진 아름다운 궁전으로 파키스탄 최고의 문화 유산이에요"
+      },
+      "funFact": "카라치는 인구가 약 1,500만 명이 넘는 파키스탄에서 가장 크고 인구가 많은 도시예요!"
+    },
+    {
+      "id": "lisbon",
+      "nameKo": "리스본",
+      "nameEn": "Lisbon",
+      "countryKo": "포르투갈",
+      "countryEn": "Portugal",
+      "region": "europe",
+      "coords": { "x": 370, "y": 255 },
+      "specialties": [
+        {
+          "icon": "pastel",
+          "nameKo": "파스텔 드 나타",
+          "nameEn": "Pastel de Nata",
+          "descKo": "바삭한 빵에 달콤한 크림을 넣은 포르투갈의 국민 과자예요"
+        },
+        {
+          "icon": "cork",
+          "nameKo": "코르크",
+          "nameEn": "Cork",
+          "descKo": "포르투갈은 세계에서 코르크 마개를 가장 많이 만드는 나라예요"
+        },
+        {
+          "icon": "fado",
+          "nameKo": "파두",
+          "nameEn": "Fado",
+          "descKo": "슬프고 아름다운 포르투갈 전통 음악으로 유네스코 문화유산이에요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "벨렝 탑",
+        "nameEn": "Tower of Belém",
+        "descKo": "500년 전 바다 탐험가들을 보내던 테주 강가의 아름다운 돌 탑이에요"
+      },
+      "funFact": "포르투갈 탐험가 바스코 다 가마가 리스본을 출발해 인도로 가는 바닷길을 처음으로 발견했어요!"
+    },
+    {
+      "id": "madrid",
+      "nameKo": "마드리드",
+      "nameEn": "Madrid",
+      "countryKo": "스페인",
+      "countryEn": "Spain",
+      "region": "europe",
+      "coords": { "x": 390, "y": 248 },
+      "specialties": [
+        {
+          "icon": "flamenco",
+          "nameKo": "플라멩코",
+          "nameEn": "Flamenco",
+          "descKo": "발을 구르며 화려하게 추는 스페인 전통 춤으로 온 세계가 열광해요"
+        },
+        {
+          "icon": "churros",
+          "nameKo": "추로스",
+          "nameEn": "Churros",
+          "descKo": "뜨거운 초콜릿에 찍어 먹는 바삭한 막대 과자로 스페인이 원조예요"
+        },
+        {
+          "icon": "olive",
+          "nameKo": "올리브",
+          "nameEn": "Olive",
+          "descKo": "스페인은 세계에서 올리브유를 가장 많이 생산하는 나라예요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "프라도 미술관",
+        "nameEn": "Prado Museum",
+        "descKo": "세계에서 가장 훌륭한 미술관 중 하나로 3만 점이 넘는 그림이 있어요"
+      },
+      "funFact": "마드리드는 해발 600미터 이상 높은 곳에 있어, 유럽의 수도 중 가장 높은 곳에 있는 수도예요!"
+    },
+    {
+      "id": "paris",
+      "nameKo": "파리",
+      "nameEn": "Paris",
+      "countryKo": "프랑스",
+      "countryEn": "France",
+      "region": "europe",
+      "coords": { "x": 405, "y": 235 },
+      "specialties": [
+        {
+          "icon": "baguette",
+          "nameKo": "바게트",
+          "nameEn": "Baguette",
+          "descKo": "파리 사람들이 매일 아침 사러 가는 길고 바삭한 프랑스 빵이에요"
+        },
+        {
+          "icon": "perfume",
+          "nameKo": "향수",
+          "nameEn": "Perfume",
+          "descKo": "파리는 샤넬, 디올 등 세계에서 가장 유명한 향수들을 만드는 도시예요"
+        },
+        {
+          "icon": "fashion",
+          "nameKo": "패션",
+          "nameEn": "Fashion",
+          "descKo": "전 세계 최신 옷 유행을 파리에서 만들어 세계로 퍼뜨려요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "에펠탑",
+        "nameEn": "Eiffel Tower",
+        "descKo": "324미터 높이의 철로 만든 탑으로 매년 700만 명이 방문하는 세계에서 가장 유명한 탑이에요"
+      },
+      "funFact": "에펠탑은 여름에 더위로 쇠가 늘어나 겨울보다 약 15cm 더 키가 커진답니다!"
+    },
+    {
+      "id": "london",
+      "nameKo": "런던",
+      "nameEn": "London",
+      "countryKo": "영국",
+      "countryEn": "United Kingdom",
+      "region": "europe",
+      "coords": { "x": 400, "y": 225 },
+      "specialties": [
+        {
+          "icon": "fish_chips",
+          "nameKo": "피시 앤 칩스",
+          "nameEn": "Fish and Chips",
+          "descKo": "바삭하게 튀긴 생선과 감자튀김으로 영국 사람들이 가장 좋아하는 음식이에요"
+        },
+        {
+          "icon": "double_decker",
+          "nameKo": "2층 버스",
+          "nameEn": "Double-decker Bus",
+          "descKo": "빨간색 2층 버스는 런던의 상징으로 100년 넘게 런던을 달리고 있어요"
+        },
+        {
+          "icon": "premier_league",
+          "nameKo": "프리미어리그",
+          "nameEn": "Premier League",
+          "descKo": "전 세계 사람들이 가장 좋아하는 영국 축구 리그예요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "빅벤",
+        "nameEn": "Big Ben",
+        "descKo": "96미터 높이의 거대한 시계탑으로 런던의 가장 유명한 상징이에요"
+      },
+      "funFact": "런던 지하철은 1863년에 세계 최초로 만들어진 가장 오래된 지하철이에요!"
+    },
+    {
+      "id": "amsterdam",
+      "nameKo": "암스테르담",
+      "nameEn": "Amsterdam",
+      "countryKo": "네덜란드",
+      "countryEn": "Netherlands",
+      "region": "europe",
+      "coords": { "x": 410, "y": 220 },
+      "specialties": [
+        {
+          "icon": "tulip",
+          "nameKo": "튤립",
+          "nameEn": "Tulip",
+          "descKo": "봄마다 수백만 송이 튤립이 피는 꽃의 나라 네덜란드의 상징이에요"
+        },
+        {
+          "icon": "cheese",
+          "nameKo": "고다 치즈",
+          "nameEn": "Gouda Cheese",
+          "descKo": "네덜란드에서 만든 둥글고 맛있는 치즈로 전 세계에 수출해요"
+        },
+        {
+          "icon": "windmill",
+          "nameKo": "풍차",
+          "nameEn": "Windmill",
+          "descKo": "바람의 힘으로 물을 퍼올리던 네덜란드의 상징인 거대한 바람 방아예요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "안네 프랑크의 집",
+        "nameEn": "Anne Frank House",
+        "descKo": "2차 세계대전 때 어린 소녀 안네 프랑크가 숨어 살며 일기를 쓴 집이에요"
+      },
+      "funFact": "암스테르담에는 자전거가 100만 대 이상 있어, 자동차보다 자전거가 더 많은 도시예요!"
+    },
+    {
+      "id": "berlin",
+      "nameKo": "베를린",
+      "nameEn": "Berlin",
+      "countryKo": "독일",
+      "countryEn": "Germany",
+      "region": "europe",
+      "coords": { "x": 425, "y": 218 },
+      "specialties": [
+        {
+          "icon": "sausage",
+          "nameKo": "소시지",
+          "nameEn": "Sausage",
+          "descKo": "독일에는 소시지 종류가 무려 1,500가지가 넘어요!"
+        },
+        {
+          "icon": "beer",
+          "nameKo": "맥주",
+          "nameEn": "Beer",
+          "descKo": "독일 맥주는 500년 전부터 만드는 방법이 법으로 정해질 만큼 전통이 깊어요"
+        },
+        {
+          "icon": "automobile",
+          "nameKo": "자동차",
+          "nameEn": "Automobile",
+          "descKo": "BMW, 메르세데스, 폭스바겐 등 세계 최고 자동차 브랜드들이 독일 것이에요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "브란덴부르크 문",
+        "nameEn": "Brandenburg Gate",
+        "descKo": "230년 전에 세워진 웅장한 돌 문으로 독일 통일과 평화의 상징이에요"
+      },
+      "funFact": "베를린은 뉴욕의 9배나 크고, 도시 안에 숲과 공원이 차지하는 면적이 무려 30%나 돼요!"
+    },
+    {
+      "id": "rome",
+      "nameKo": "로마",
+      "nameEn": "Rome",
+      "countryKo": "이탈리아",
+      "countryEn": "Italy",
+      "region": "europe",
+      "coords": { "x": 430, "y": 255 },
+      "specialties": [
+        {
+          "icon": "pizza",
+          "nameKo": "피자",
+          "nameEn": "Pizza",
+          "descKo": "이탈리아에서 만들어진 피자는 이제 전 세계 사람들이 가장 좋아하는 음식이 됐어요"
+        },
+        {
+          "icon": "pasta",
+          "nameKo": "파스타",
+          "nameEn": "Pasta",
+          "descKo": "스파게티, 라자냐 등 파스타의 종류가 이탈리아에만 350가지가 넘어요"
+        },
+        {
+          "icon": "gelato",
+          "nameKo": "젤라토",
+          "nameEn": "Gelato",
+          "descKo": "이탈리아식 아이스크림으로 진하고 부드러운 맛이 일반 아이스크림과 달라요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "콜로세움",
+        "nameEn": "Colosseum",
+        "descKo": "2,000년 전 고대 로마에서 5만 명을 수용했던 거대한 원형 경기장이에요"
+      },
+      "funFact": "로마 사람들은 트레비 분수에 하루에 3,000유로(약 430만 원)어치 동전을 던져요!"
+    },
+    {
+      "id": "venice",
+      "nameKo": "베네치아",
+      "nameEn": "Venice",
+      "countryKo": "이탈리아",
+      "countryEn": "Italy",
+      "region": "europe",
+      "coords": { "x": 430, "y": 245 },
+      "specialties": [
+        {
+          "icon": "glass",
+          "nameKo": "무라노 유리",
+          "nameEn": "Murano Glass",
+          "descKo": "600년 전통의 유리 불기 기술로 만든 예쁜 유리 공예품이에요"
+        },
+        {
+          "icon": "gondola",
+          "nameKo": "곤돌라",
+          "nameEn": "Gondola",
+          "descKo": "좁은 수로를 미끄러지듯 달리는 베네치아의 특별한 배예요"
+        },
+        {
+          "icon": "carnival_mask",
+          "nameKo": "가면 축제",
+          "nameEn": "Carnival Mask",
+          "descKo": "아름다운 가면을 쓰고 거리를 걷는 세계에서 가장 화려한 축제 중 하나예요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "산 마르코 광장",
+        "nameEn": "St. Mark's Square",
+        "descKo": "나폴레옹이 '세계에서 가장 아름다운 응접실'이라고 불렀던 광장이에요"
+      },
+      "funFact": "베네치아는 물 위에 세워진 도시로, 차가 한 대도 없고 모든 이동을 배로 해요!"
+    },
+    {
+      "id": "athens",
+      "nameKo": "아테네",
+      "nameEn": "Athens",
+      "countryKo": "그리스",
+      "countryEn": "Greece",
+      "region": "europe",
+      "coords": { "x": 450, "y": 265 },
+      "specialties": [
+        {
+          "icon": "olive",
+          "nameKo": "올리브",
+          "nameEn": "Olive",
+          "descKo": "그리스는 3,000년 전부터 올리브를 재배한 올리브의 원산지예요"
+        },
+        {
+          "icon": "feta",
+          "nameKo": "페타 치즈",
+          "nameEn": "Feta Cheese",
+          "descKo": "양젖으로 만든 짭조름한 하얀 치즈로 그리스 샐러드에 꼭 들어가요"
+        },
+        {
+          "icon": "olympic_flame",
+          "nameKo": "올림픽",
+          "nameEn": "Olympic Games",
+          "descKo": "4년마다 열리는 세계 최대 스포츠 축제 올림픽이 고대 그리스에서 시작됐어요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "파르테논 신전",
+        "nameEn": "Parthenon",
+        "descKo": "2,500년 전 지어진 신전으로 그리스 문명의 상징이자 세계 최고의 건축물이에요"
+      },
+      "funFact": "우리가 쓰는 수학, 철학, 민주주의가 모두 고대 그리스 아테네에서 처음 시작됐어요!"
+    },
+    {
+      "id": "istanbul",
+      "nameKo": "이스탄불",
+      "nameEn": "Istanbul",
+      "countryKo": "튀르키예",
+      "countryEn": "Turkey",
+      "region": "europe",
+      "coords": { "x": 465, "y": 255 },
+      "specialties": [
+        {
+          "icon": "turkish_delight",
+          "nameKo": "터키시 딜라이트",
+          "nameEn": "Turkish Delight",
+          "descKo": "꽃물과 설탕으로 만든 쫄깃한 젤리 과자로 400년 넘는 역사를 가지고 있어요"
+        },
+        {
+          "icon": "carpet",
+          "nameKo": "양탄자",
+          "nameEn": "Carpet",
+          "descKo": "튀르키예 여인들이 손으로 한 올 한 올 짠 아름다운 전통 양탄자예요"
+        },
+        {
+          "icon": "tulip",
+          "nameKo": "튤립",
+          "nameEn": "Tulip",
+          "descKo": "튤립은 사실 네덜란드가 아니라 튀르키예에서 먼저 재배된 꽃이에요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "아야 소피아",
+        "nameEn": "Hagia Sophia",
+        "descKo": "1,500년 전 세워진 거대한 돔 건물로 오랫동안 세계에서 가장 큰 교회였어요"
+      },
+      "funFact": "이스탄불은 유럽과 아시아 두 대륙에 걸쳐 있는 세계에서 유일한 도시예요!"
+    },
+    {
+      "id": "barcelona",
+      "nameKo": "바르셀로나",
+      "nameEn": "Barcelona",
+      "countryKo": "스페인",
+      "countryEn": "Spain",
+      "region": "europe",
+      "coords": { "x": 400, "y": 255 },
+      "specialties": [
+        {
+          "icon": "paella",
+          "nameKo": "파에야",
+          "nameEn": "Paella",
+          "descKo": "큰 팬에 해산물과 쌀을 넣고 노랗게 볶은 스페인의 대표 쌀 요리예요"
+        },
+        {
+          "icon": "architecture",
+          "nameKo": "가우디 건축",
+          "nameEn": "Gaudí Architecture",
+          "descKo": "건축가 가우디가 만든 꿈꾸는 듯 신기한 모양의 건물들이 도시 곳곳에 있어요"
+        },
+        {
+          "icon": "football",
+          "nameKo": "축구",
+          "nameEn": "Football",
+          "descKo": "FC 바르셀로나는 세계에서 가장 사랑받는 축구팀 중 하나예요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "사그라다 파밀리아",
+        "nameEn": "Sagrada Família",
+        "descKo": "1882년부터 짓기 시작해 아직도 공사 중인 세상에서 가장 특이한 성당이에요"
+      },
+      "funFact": "사그라다 파밀리아 성당은 143년째 짓고 있는 세계에서 가장 오랫동안 공사 중인 건물이에요!"
+    },
+    {
+      "id": "oslo",
+      "nameKo": "오슬로",
+      "nameEn": "Oslo",
+      "countryKo": "노르웨이",
+      "countryEn": "Norway",
+      "region": "europe",
+      "coords": { "x": 415, "y": 200 },
+      "specialties": [
+        {
+          "icon": "salmon",
+          "nameKo": "연어",
+          "nameEn": "Salmon",
+          "descKo": "노르웨이 차가운 바다에서 잡은 연어는 세계에서 가장 맛있기로 유명해요"
+        },
+        {
+          "icon": "aurora",
+          "nameKo": "오로라",
+          "nameEn": "Northern Lights",
+          "descKo": "밤하늘에 녹색, 보라색으로 물드는 신비로운 빛으로 노르웨이에서 볼 수 있어요"
+        },
+        {
+          "icon": "oil",
+          "nameKo": "석유",
+          "nameEn": "Oil",
+          "descKo": "바다 밑에서 석유를 캐는 노르웨이는 세계에서 가장 잘 사는 나라 중 하나예요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "비겔란 조각 공원",
+        "nameEn": "Vigeland Sculpture Park",
+        "descKo": "한 조각가가 평생 만든 212개의 동상이 있는 세계에서 가장 큰 조각 공원이에요"
+      },
+      "funFact": "노르웨이는 세계 최초로 전기 자동차 비율이 전체 자동차의 80%를 넘은 나라예요!"
+    },
+    {
+      "id": "stockholm",
+      "nameKo": "스톡홀름",
+      "nameEn": "Stockholm",
+      "countryKo": "스웨덴",
+      "countryEn": "Sweden",
+      "region": "europe",
+      "coords": { "x": 430, "y": 200 },
+      "specialties": [
+        {
+          "icon": "meatballs",
+          "nameKo": "미트볼",
+          "nameEn": "Swedish Meatballs",
+          "descKo": "부드러운 크림소스에 담긴 고기 완자로 스웨덴의 대표 음식이에요"
+        },
+        {
+          "icon": "design",
+          "nameKo": "가구 디자인",
+          "nameEn": "Furniture Design",
+          "descKo": "이케아는 스웨덴에서 만든 세계 최대 가구 회사예요"
+        },
+        {
+          "icon": "music",
+          "nameKo": "음악",
+          "nameEn": "Music",
+          "descKo": "ABBA, 아바 그룹이 스웨덴 출신으로 전 세계가 사랑하는 팝 음악을 만들었어요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "바사 박물관",
+        "nameEn": "Vasa Museum",
+        "descKo": "400년 전 침몰했다가 건져 올린 거대한 목조 전함을 그대로 전시해 놓은 박물관이에요"
+      },
+      "funFact": "스톡홀름은 14개의 섬으로 이루어진 도시로, 도시 안에 다리가 57개나 있어요!"
+    },
+    {
+      "id": "copenhagen",
+      "nameKo": "코펜하겐",
+      "nameEn": "Copenhagen",
+      "countryKo": "덴마크",
+      "countryEn": "Denmark",
+      "region": "europe",
+      "coords": { "x": 420, "y": 210 },
+      "specialties": [
+        {
+          "icon": "danish_pastry",
+          "nameKo": "덴마크 빵",
+          "nameEn": "Danish Pastry",
+          "descKo": "버터를 겹겹이 넣어 만든 바삭하고 고소한 빵으로 전 세계에서 즐겨 먹어요"
+        },
+        {
+          "icon": "lego",
+          "nameKo": "레고",
+          "nameEn": "LEGO",
+          "descKo": "덴마크 작은 마을에서 탄생한 세계에서 가장 유명한 장난감 블록이에요"
+        },
+        {
+          "icon": "wind_energy",
+          "nameKo": "풍력 에너지",
+          "nameEn": "Wind Energy",
+          "descKo": "덴마크는 전기 절반 이상을 바람으로 만드는 친환경 에너지 강국이에요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "인어공주 동상",
+        "nameEn": "The Little Mermaid",
+        "descKo": "동화 작가 안데르센의 인어공주를 기념해 만든 작은 동상으로 덴마크의 상징이에요"
+      },
+      "funFact": "레고 블록의 이름은 덴마크어로 '잘 놀다'라는 뜻의 'leg godt'에서 왔어요!"
+    },
+    {
+      "id": "moscow",
+      "nameKo": "모스크바",
+      "nameEn": "Moscow",
+      "countryKo": "러시아",
+      "countryEn": "Russia",
+      "region": "europe",
+      "coords": { "x": 480, "y": 215 },
+      "specialties": [
+        {
+          "icon": "borscht",
+          "nameKo": "보르시",
+          "nameEn": "Borscht",
+          "descKo": "빨간 비트를 넣어 만든 새콤달콤한 러시아 전통 수프예요"
+        },
+        {
+          "icon": "space",
+          "nameKo": "우주 개발",
+          "nameEn": "Space Technology",
+          "descKo": "러시아는 세계 최초로 우주선과 우주인을 우주로 보낸 나라예요"
+        },
+        {
+          "icon": "matryoshka",
+          "nameKo": "마트료시카",
+          "nameEn": "Matryoshka",
+          "descKo": "인형 안에 인형이 계속 들어있는 러시아 전통 나무 인형이에요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "성 바실리 대성당",
+        "nameEn": "Saint Basil's Cathedral",
+        "descKo": "양파 모양의 알록달록한 지붕이 9개 달린 동화 속에 나올 것 같은 성당이에요"
+      },
+      "funFact": "러시아는 세계에서 가장 큰 나라로, 땅의 넓이가 무려 1718만km²예요. 한반도의 78배나 됩니다!"
+    },
+    {
+      "id": "cairo",
+      "nameKo": "카이로",
+      "nameEn": "Cairo",
+      "countryKo": "이집트",
+      "countryEn": "Egypt",
+      "region": "africa",
+      "coords": { "x": 475, "y": 285 },
+      "specialties": [
+        {
+          "icon": "pyramid",
+          "nameKo": "피라미드",
+          "nameEn": "Pyramid",
+          "descKo": "4,500년 전 파라오 왕들이 만든 거대한 돌무덤으로 세계 7대 불가사의 중 하나예요"
+        },
+        {
+          "icon": "papyrus",
+          "nameKo": "파피루스",
+          "nameEn": "Papyrus",
+          "descKo": "고대 이집트 사람들이 나일강 식물로 만든 세계 최초의 종이예요"
+        },
+        {
+          "icon": "cotton",
+          "nameKo": "면화",
+          "nameEn": "Egyptian Cotton",
+          "descKo": "이집트 면화는 세계에서 가장 부드럽고 고급스러운 면으로 유명해요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "기자의 대피라미드",
+        "nameEn": "Great Pyramid of Giza",
+        "descKo": "4,500년 전 230만 개의 돌을 쌓아 만든 높이 138미터의 거대한 무덤이에요"
+      },
+      "funFact": "카이로 옆에 있는 기자 피라미드는 3,800년 동안 세계에서 가장 높은 건물이었어요!"
+    },
+    {
+      "id": "casablanca",
+      "nameKo": "카사블랑카",
+      "nameEn": "Casablanca",
+      "countryKo": "모로코",
+      "countryEn": "Morocco",
+      "region": "africa",
+      "coords": { "x": 380, "y": 275 },
+      "specialties": [
+        {
+          "icon": "tagine",
+          "nameKo": "타진",
+          "nameEn": "Tagine",
+          "descKo": "고깔 모양 뚜껑이 달린 특별한 냄비로 고기와 채소를 천천히 익힌 요리예요"
+        },
+        {
+          "icon": "argan_oil",
+          "nameKo": "아르간 오일",
+          "nameEn": "Argan Oil",
+          "descKo": "모로코에서만 자라는 아르간 나무 열매에서 짠 귀한 기름으로 피부에 좋아요"
+        },
+        {
+          "icon": "carpet",
+          "nameKo": "베르베르 카펫",
+          "nameEn": "Berber Carpet",
+          "descKo": "모로코 원주민 베르베르 사람들이 손으로 짠 아름다운 전통 양탄자예요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "하산 2세 모스크",
+        "nameEn": "Hassan II Mosque",
+        "descKo": "아프리카에서 가장 큰 이슬람 사원으로 210미터 첨탑이 바다 위에 우뚝 서 있어요"
+      },
+      "funFact": "카사블랑카는 스페인어로 '하얀 집'이라는 뜻으로, 도시의 흰 건물들에서 이름이 붙었어요!"
+    },
+    {
+      "id": "lagos",
+      "nameKo": "라고스",
+      "nameEn": "Lagos",
+      "countryKo": "나이지리아",
+      "countryEn": "Nigeria",
+      "region": "africa",
+      "coords": { "x": 415, "y": 330 },
+      "specialties": [
+        {
+          "icon": "jollof_rice",
+          "nameKo": "졸로프 라이스",
+          "nameEn": "Jollof Rice",
+          "descKo": "토마토와 향신료로 빨갛게 물들인 서아프리카 사람들이 가장 사랑하는 쌀 요리예요"
+        },
+        {
+          "icon": "music_afrobeat",
+          "nameKo": "아프로비트",
+          "nameEn": "Afrobeats",
+          "descKo": "신나는 아프리카 리듬의 음악으로 최근 전 세계에서 인기를 얻고 있어요"
+        },
+        {
+          "icon": "oil",
+          "nameKo": "석유",
+          "nameEn": "Oil",
+          "descKo": "나이지리아는 아프리카에서 석유가 가장 많이 나는 나라예요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "라고스 아일랜드",
+        "nameEn": "Lagos Island",
+        "descKo": "아프리카 최대 도시의 심장부로 높은 빌딩들과 활기찬 시장이 가득해요"
+      },
+      "funFact": "라고스는 아프리카에서 가장 빠르게 성장하는 도시로, 매년 약 60만 명씩 인구가 늘어나요!"
+    },
+    {
+      "id": "cape_town",
+      "nameKo": "케이프타운",
+      "nameEn": "Cape Town",
+      "countryKo": "남아프리카 공화국",
+      "countryEn": "South Africa",
+      "region": "africa",
+      "coords": { "x": 450, "y": 420 },
+      "specialties": [
+        {
+          "icon": "diamond",
+          "nameKo": "다이아몬드",
+          "nameEn": "Diamond",
+          "descKo": "남아프리카는 세계에서 다이아몬드가 가장 많이 나오는 나라 중 하나예요"
+        },
+        {
+          "icon": "wine",
+          "nameKo": "포도주",
+          "nameEn": "Wine",
+          "descKo": "케이프타운 근처 포도밭에서 세계적으로 유명한 와인을 만들어요"
+        },
+        {
+          "icon": "penguin",
+          "nameKo": "아프리카 펭귄",
+          "nameEn": "African Penguin",
+          "descKo": "케이프타운 바로 옆 해변에서 야생 펭귄을 가까이에서 볼 수 있어요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "테이블 마운틴",
+        "nameEn": "Table Mountain",
+        "descKo": "꼭대기가 식탁처럼 평평한 해발 1,086미터의 산으로 케이프타운의 상징이에요"
+      },
+      "funFact": "케이프타운 근처의 희망봉은 대서양과 인도양이 만나는 곳으로 옛날 뱃사람들의 중요한 항로였어요!"
+    },
+    {
+      "id": "zanzibar",
+      "nameKo": "잔지바르",
+      "nameEn": "Zanzibar",
+      "countryKo": "탄자니아",
+      "countryEn": "Tanzania",
+      "region": "africa",
+      "coords": { "x": 490, "y": 360 },
+      "specialties": [
+        {
+          "icon": "clove",
+          "nameKo": "정향",
+          "nameEn": "Clove",
+          "descKo": "강한 향이 나는 꽃봉오리 향신료로 잔지바르는 한때 세계 최대 생산지였어요"
+        },
+        {
+          "icon": "cinnamon",
+          "nameKo": "계피",
+          "nameEn": "Cinnamon",
+          "descKo": "달콤하고 알싸한 향의 향신료로 빵, 음료, 요리에 많이 써요"
+        },
+        {
+          "icon": "seaweed",
+          "nameKo": "해초",
+          "nameEn": "Seaweed",
+          "descKo": "잔지바르 여성들이 바다에서 키우는 해초는 화장품, 식품에 쓰여요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "스톤 타운",
+        "nameEn": "Stone Town",
+        "descKo": "아라비아와 아프리카 문화가 섞인 좁고 미로 같은 골목의 오래된 도시예요"
+      },
+      "funFact": "잔지바르는 퀸의 보컬 프레디 머큐리가 태어난 섬으로, 음악 팬들에게 아주 유명한 곳이에요!"
+    },
+    {
+      "id": "nairobi",
+      "nameKo": "나이로비",
+      "nameEn": "Nairobi",
+      "countryKo": "케냐",
+      "countryEn": "Kenya",
+      "region": "africa",
+      "coords": { "x": 490, "y": 345 },
+      "specialties": [
+        {
+          "icon": "safari",
+          "nameKo": "사파리",
+          "nameEn": "Safari",
+          "descKo": "기린, 코끼리, 사자를 가까이서 볼 수 있는 야생 동물 여행이에요"
+        },
+        {
+          "icon": "coffee",
+          "nameKo": "커피",
+          "nameEn": "Kenyan Coffee",
+          "descKo": "케냐의 높은 지대에서 자란 커피는 세계에서 가장 맛있는 커피로 꼽혀요"
+        },
+        {
+          "icon": "marathon",
+          "nameKo": "마라톤",
+          "nameEn": "Marathon",
+          "descKo": "케냐 선수들은 세계 마라톤 대회에서 거의 매번 1등을 하는 달리기의 나라예요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "나이로비 국립공원",
+        "nameEn": "Nairobi National Park",
+        "descKo": "도시 안에 있는 세계에서 유일한 국립공원으로 빌딩을 배경으로 사자가 돌아다녀요"
+      },
+      "funFact": "나이로비는 세계에서 유일하게 도시 안에 국립공원이 있어요. 사무실 창문에서 기린이 보이기도 해요!"
+    },
+    {
+      "id": "alexandria",
+      "nameKo": "알렉산드리아",
+      "nameEn": "Alexandria",
+      "countryKo": "이집트",
+      "countryEn": "Egypt",
+      "region": "africa",
+      "coords": { "x": 470, "y": 275 },
+      "specialties": [
+        {
+          "icon": "seafood",
+          "nameKo": "해산물",
+          "nameEn": "Seafood",
+          "descKo": "지중해에서 잡은 신선한 생선과 새우 요리로 이집트에서 가장 맛있는 해산물을 먹을 수 있어요"
+        },
+        {
+          "icon": "library",
+          "nameKo": "고대 도서관",
+          "nameEn": "Ancient Library",
+          "descKo": "2,300년 전 세계 모든 책을 모으려 했던 인류 역사상 가장 위대한 도서관이 있었어요"
+        },
+        {
+          "icon": "lighthouse",
+          "nameKo": "등대",
+          "nameEn": "Lighthouse",
+          "descKo": "알렉산드리아 파로스 등대는 높이가 135미터로 고대 세계 7대 불가사의 중 하나였어요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "카이트베이 요새",
+        "nameEn": "Citadel of Qaitbay",
+        "descKo": "고대 등대가 있던 자리에 세워진 500년 된 바닷가 요새예요"
+      },
+      "funFact": "알렉산드리아는 2,300년 전 알렉산더 대왕이 세운 도시로, 당시 세계에서 가장 화려한 도시였어요!"
+    },
+    {
+      "id": "dakar",
+      "nameKo": "다카르",
+      "nameEn": "Dakar",
+      "countryKo": "세네갈",
+      "countryEn": "Senegal",
+      "region": "africa",
+      "coords": { "x": 370, "y": 305 },
+      "specialties": [
+        {
+          "icon": "thieboudienne",
+          "nameKo": "티에부디엔",
+          "nameEn": "Thiéboudienne",
+          "descKo": "쌀에 생선과 채소를 넣고 향신료로 끓인 세네갈의 국민 음식이에요"
+        },
+        {
+          "icon": "peanut",
+          "nameKo": "땅콩",
+          "nameEn": "Peanut",
+          "descKo": "세네갈은 아프리카에서 땅콩을 가장 많이 생산하는 나라 중 하나예요"
+        },
+        {
+          "icon": "music_mbalax",
+          "nameKo": "음발라",
+          "nameEn": "Mbalax",
+          "descKo": "신나는 북 소리가 특징인 세네갈 전통 음악 장르예요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "아프리카 르네상스 동상",
+        "nameEn": "African Renaissance Monument",
+        "descKo": "49미터 높이의 청동 동상으로 아프리카의 발전과 희망을 나타내요"
+      },
+      "funFact": "다카르는 아프리카 대륙에서 가장 서쪽에 있는 도시로, 유럽과 가장 가까운 아프리카 도시예요!"
+    },
+    {
+      "id": "new_york",
+      "nameKo": "뉴욕",
+      "nameEn": "New York",
+      "countryKo": "미국",
+      "countryEn": "United States",
+      "region": "americas",
+      "coords": { "x": 245, "y": 245 },
+      "specialties": [
+        {
+          "icon": "hot_dog",
+          "nameKo": "핫도그",
+          "nameEn": "Hot Dog",
+          "descKo": "빵 사이에 소시지를 넣은 음식으로 뉴욕 거리에서 가장 많이 먹는 간식이에요"
+        },
+        {
+          "icon": "finance",
+          "nameKo": "금융",
+          "nameEn": "Wall Street",
+          "descKo": "월스트리트는 세계 경제의 중심지로 전 세계 돈이 이곳에서 움직여요"
+        },
+        {
+          "icon": "broadway",
+          "nameKo": "브로드웨이",
+          "nameEn": "Broadway",
+          "descKo": "화려한 무대 위 배우들의 뮤지컬 공연으로 세계 최고 수준의 공연 거리예요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "자유의 여신상",
+        "nameEn": "Statue of Liberty",
+        "descKo": "프랑스가 선물한 93미터 높이의 동상으로 자유와 민주주의의 상징이에요"
+      },
+      "funFact": "뉴욕 지하철은 24시간 1년 내내 쉬지 않고 달리는 세계에서 몇 안 되는 지하철이에요!"
+    },
+    {
+      "id": "washington_dc",
+      "nameKo": "워싱턴DC",
+      "nameEn": "Washington D.C.",
+      "countryKo": "미국",
+      "countryEn": "United States",
+      "region": "americas",
+      "coords": { "x": 250, "y": 248 },
+      "specialties": [
+        {
+          "icon": "politics",
+          "nameKo": "정치",
+          "nameEn": "Politics",
+          "descKo": "미국 대통령이 일하는 백악관과 국회의사당이 있는 미국의 수도예요"
+        },
+        {
+          "icon": "museum",
+          "nameKo": "박물관",
+          "nameEn": "Smithsonian",
+          "descKo": "세계에서 가장 큰 박물관 단지인 스미소니언 박물관이 있고 입장료가 무료예요"
+        },
+        {
+          "icon": "cherry_blossom",
+          "nameKo": "벚꽃",
+          "nameEn": "Cherry Blossom",
+          "descKo": "봄마다 피는 벚꽃이 아름다워 매년 150만 명이 보러 오는 유명한 행사예요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "링컨 기념관",
+        "nameEn": "Lincoln Memorial",
+        "descKo": "노예 해방을 이끈 링컨 대통령의 거대한 앉은 동상이 있는 신전 같은 기념관이에요"
+      },
+      "funFact": "워싱턴DC는 어느 주에도 속하지 않는 특별한 도시로, 미국 건국 후 대통령을 위해 새로 만든 도시예요!"
+    },
+    {
+      "id": "los_angeles",
+      "nameKo": "로스앤젤레스",
+      "nameEn": "Los Angeles",
+      "countryKo": "미국",
+      "countryEn": "United States",
+      "region": "americas",
+      "coords": { "x": 180, "y": 265 },
+      "specialties": [
+        {
+          "icon": "film",
+          "nameKo": "영화",
+          "nameEn": "Hollywood Film",
+          "descKo": "할리우드에서 전 세계 사람들이 보는 수천 편의 영화가 만들어져요"
+        },
+        {
+          "icon": "surfing",
+          "nameKo": "서핑",
+          "nameEn": "Surfing",
+          "descKo": "아름다운 해변에서 파도를 타는 서핑 문화가 발달한 도시예요"
+        },
+        {
+          "icon": "avocado",
+          "nameKo": "아보카도",
+          "nameEn": "Avocado",
+          "descKo": "건강에 좋은 초록색 과일로 캘리포니아는 미국 아보카도의 90%를 생산해요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "할리우드 사인",
+        "nameEn": "Hollywood Sign",
+        "descKo": "산 위에 크게 쓰인 HOLLYWOOD 글자로 영화의 도시 LA의 상징이에요"
+      },
+      "funFact": "로스앤젤레스에는 세계 180개국에서 온 사람들이 살아서 300개가 넘는 언어가 사용돼요!"
+    },
+    {
+      "id": "chicago",
+      "nameKo": "시카고",
+      "nameEn": "Chicago",
+      "countryKo": "미국",
+      "countryEn": "United States",
+      "region": "americas",
+      "coords": { "x": 230, "y": 238 },
+      "specialties": [
+        {
+          "icon": "deep_dish_pizza",
+          "nameKo": "딥디시 피자",
+          "nameEn": "Deep-dish Pizza",
+          "descKo": "일반 피자와 달리 두꺼운 파이처럼 만든 시카고만의 특별한 피자예요"
+        },
+        {
+          "icon": "jazz",
+          "nameKo": "재즈 & 블루스",
+          "nameEn": "Jazz & Blues",
+          "descKo": "시카고는 재즈와 블루스 음악이 꽃피운 미국 음악의 성지예요"
+        },
+        {
+          "icon": "skyscraper",
+          "nameKo": "마천루",
+          "nameEn": "Skyscraper",
+          "descKo": "세계 최초의 고층 빌딩인 마천루가 시카고에서 처음 만들어졌어요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "클라우드 게이트",
+        "nameEn": "Cloud Gate (The Bean)",
+        "descKo": "거대한 콩 모양의 반짝이는 조형물로 시카고 하늘과 도시가 반사돼 보여요"
+      },
+      "funFact": "시카고는 '바람의 도시'라는 별명처럼, 바람이 너무 강해서 빌딩을 지을 때 특별히 더 튼튼하게 만들어야 해요!"
+    },
+    {
+      "id": "rio_de_janeiro",
+      "nameKo": "리우데자네이루",
+      "nameEn": "Rio de Janeiro",
+      "countryKo": "브라질",
+      "countryEn": "Brazil",
+      "region": "americas",
+      "coords": { "x": 300, "y": 385 },
+      "specialties": [
+        {
+          "icon": "coffee",
+          "nameKo": "커피",
+          "nameEn": "Coffee",
+          "descKo": "브라질은 세계에서 커피를 가장 많이 생산하는 나라로 150년째 1위를 지키고 있어요"
+        },
+        {
+          "icon": "carnival",
+          "nameKo": "카니발",
+          "nameEn": "Carnival",
+          "descKo": "화려한 의상과 삼바 춤으로 유명한 세계 최대의 축제가 매년 열려요"
+        },
+        {
+          "icon": "football",
+          "nameKo": "축구",
+          "nameEn": "Football",
+          "descKo": "펠레, 호나우두 등 세계 최고의 축구 선수들을 배출한 축구의 나라예요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "예수상",
+        "nameEn": "Christ the Redeemer",
+        "descKo": "산 꼭대기에 두 팔을 벌린 30미터 높이의 예수님 동상으로 세계 7대 불가사의예요"
+      },
+      "funFact": "브라질은 세계에서 유일하게 월드컵에서 5번 우승한 나라예요. 국민의 절반이 축구 선수를 꿈꾼다고 해요!"
+    },
+    {
+      "id": "buenos_aires",
+      "nameKo": "부에노스아이레스",
+      "nameEn": "Buenos Aires",
+      "countryKo": "아르헨티나",
+      "countryEn": "Argentina",
+      "region": "americas",
+      "coords": { "x": 285, "y": 415 },
+      "specialties": [
+        {
+          "icon": "tango",
+          "nameKo": "탱고",
+          "nameEn": "Tango",
+          "descKo": "두 사람이 가까이 붙어서 우아하게 추는 아르헨티나의 춤으로 유네스코 문화유산이에요"
+        },
+        {
+          "icon": "beef",
+          "nameKo": "소고기",
+          "nameEn": "Beef",
+          "descKo": "아르헨티나 초원의 소고기는 세계에서 가장 맛있기로 유명해요"
+        },
+        {
+          "icon": "mate",
+          "nameKo": "마테 차",
+          "nameEn": "Mate Tea",
+          "descKo": "마른 풀잎을 빨대로 빨아 마시는 아르헨티나의 전통 음료로 아주 쓴 맛이 나요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "카사 로사다",
+        "nameEn": "Casa Rosada",
+        "descKo": "분홍색 대통령 궁으로 유명한 노래 '돈 크라이 포 미 아르헨티나'의 배경이에요"
+      },
+      "funFact": "부에노스아이레스는 남아메리카에서 유럽 문화가 가장 많이 남아 있어 '남미의 파리'라고 불려요!"
+    },
+    {
+      "id": "havana",
+      "nameKo": "아바나",
+      "nameEn": "Havana",
+      "countryKo": "쿠바",
+      "countryEn": "Cuba",
+      "region": "americas",
+      "coords": { "x": 245, "y": 290 },
+      "specialties": [
+        {
+          "icon": "cigar",
+          "nameKo": "시가",
+          "nameEn": "Cigar",
+          "descKo": "쿠바 시가는 세계에서 가장 품질이 좋은 것으로 유명해요"
+        },
+        {
+          "icon": "classic_car",
+          "nameKo": "클래식 자동차",
+          "nameEn": "Classic Car",
+          "descKo": "1950년대 알록달록한 색깔의 낡은 자동차들이 지금도 아바나 거리를 달려요"
+        },
+        {
+          "icon": "salsa",
+          "nameKo": "살사 음악",
+          "nameEn": "Salsa Music",
+          "descKo": "신나는 쿠바 리듬에서 나온 살사 음악과 춤은 전 세계 사람들이 즐겨요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "아바나 구시가지",
+        "nameEn": "Old Havana",
+        "descKo": "500년 된 건물들이 알록달록하게 색칠되어 마치 동화 속 도시 같아요"
+      },
+      "funFact": "아바나는 1950년대 이후 새 자동차 수입이 막혀 70년이 넘은 클래식 자동차 5만 대가 아직도 달리고 있어요!"
+    },
+    {
+      "id": "mexico_city",
+      "nameKo": "멕시코시티",
+      "nameEn": "Mexico City",
+      "countryKo": "멕시코",
+      "countryEn": "Mexico",
+      "region": "americas",
+      "coords": { "x": 195, "y": 295 },
+      "specialties": [
+        {
+          "icon": "taco",
+          "nameKo": "타코",
+          "nameEn": "Taco",
+          "descKo": "옥수수 빵에 고기와 채소를 넣어 먹는 멕시코의 대표 음식이에요"
+        },
+        {
+          "icon": "chocolate",
+          "nameKo": "초콜릿",
+          "nameEn": "Chocolate",
+          "descKo": "초콜릿의 원료인 카카오는 멕시코 고대 문명에서 처음 마시기 시작했어요"
+        },
+        {
+          "icon": "marigold",
+          "nameKo": "마리골드 꽃",
+          "nameEn": "Marigold",
+          "descKo": "돌아가신 분을 기억하는 죽은 자들의 날 축제에 주황 꽃을 길에 가득 깔아요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "테오티우아칸",
+        "nameEn": "Teotihuacan",
+        "descKo": "2,000년 전 고대 도시의 태양 피라미드로 높이가 65미터나 돼요"
+      },
+      "funFact": "멕시코시티는 2,250미터 높이에 지어진 도시로, 서울보다 산소가 훨씬 적어서 운동하면 더 빨리 숨이 차요!"
+    },
+    {
+      "id": "lima",
+      "nameKo": "리마",
+      "nameEn": "Lima",
+      "countryKo": "페루",
+      "countryEn": "Peru",
+      "region": "americas",
+      "coords": { "x": 255, "y": 375 },
+      "specialties": [
+        {
+          "icon": "ceviche",
+          "nameKo": "세비체",
+          "nameEn": "Ceviche",
+          "descKo": "레몬즙에 절인 신선한 생선 요리로 페루의 국민 음식이에요"
+        },
+        {
+          "icon": "potato",
+          "nameKo": "감자",
+          "nameEn": "Potato",
+          "descKo": "우리가 먹는 감자는 원래 페루 안데스 산맥에서 처음 재배됐어요"
+        },
+        {
+          "icon": "llama",
+          "nameKo": "라마",
+          "nameEn": "Llama",
+          "descKo": "안데스 산맥에 사는 낙타 친척 동물로 페루 사람들이 오래전부터 키워온 동물이에요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "마추픽추",
+        "nameEn": "Machu Picchu",
+        "descKo": "해발 2,430미터 산꼭대기에 600년 전 잉카 사람들이 만든 신비로운 돌 도시예요"
+      },
+      "funFact": "감자, 토마토, 옥수수, 초콜릿 모두 아메리카 원주민들이 처음 재배해서 전 세계로 퍼진 음식이에요!"
+    },
+    {
+      "id": "santiago",
+      "nameKo": "산티아고",
+      "nameEn": "Santiago",
+      "countryKo": "칠레",
+      "countryEn": "Chile",
+      "region": "americas",
+      "coords": { "x": 270, "y": 415 },
+      "specialties": [
+        {
+          "icon": "wine",
+          "nameKo": "와인",
+          "nameEn": "Wine",
+          "descKo": "칠레 와인은 세계 5위 수출국으로 품질 좋고 가격이 합리적이에요"
+        },
+        {
+          "icon": "copper",
+          "nameKo": "구리",
+          "nameEn": "Copper",
+          "descKo": "칠레는 세계 최대 구리 생산국으로 전 세계 구리의 1/4을 칠레에서 캐요"
+        },
+        {
+          "icon": "empanada",
+          "nameKo": "엠파나다",
+          "nameEn": "Empanada",
+          "descKo": "고기나 치즈를 밀가루 반죽으로 싸서 구운 칠레의 대표 간식이에요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "산 크리스토발 언덕",
+        "nameEn": "San Cristóbal Hill",
+        "descKo": "도시 한가운데 솟은 언덕 꼭대기에 하얀 성모 마리아 동상이 서 있어요"
+      },
+      "funFact": "칠레는 세계에서 가장 긴 나라로 길이가 무려 4,300킬로미터예요. 한반도의 약 20배 길이랍니다!"
+    },
+    {
+      "id": "sydney",
+      "nameKo": "시드니",
+      "nameEn": "Sydney",
+      "countryKo": "오스트레일리아",
+      "countryEn": "Australia",
+      "region": "oceania",
+      "coords": { "x": 830, "y": 415 },
+      "specialties": [
+        {
+          "icon": "kangaroo",
+          "nameKo": "캥거루",
+          "nameEn": "Kangaroo",
+          "descKo": "배에 주머니가 있고 깡충깡충 뛰는 오스트레일리아의 상징 동물이에요"
+        },
+        {
+          "icon": "surfing",
+          "nameKo": "서핑",
+          "nameEn": "Surfing",
+          "descKo": "시드니 본다이 비치는 세계에서 가장 유명한 서핑 해변이에요"
+        },
+        {
+          "icon": "opal",
+          "nameKo": "오팔",
+          "nameEn": "Opal",
+          "descKo": "무지개처럼 여러 색이 반짝이는 보석으로 오스트레일리아에서 95%가 생산돼요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "시드니 오페라 하우스",
+        "nameEn": "Sydney Opera House",
+        "descKo": "조개껍데기 모양 지붕이 겹쳐진 세계에서 가장 독특하고 아름다운 공연장이에요"
+      },
+      "funFact": "오스트레일리아에는 코알라, 캥거루처럼 다른 나라에 없는 동물이 80%나 살고 있어요!"
+    },
+    {
+      "id": "melbourne",
+      "nameKo": "멜버른",
+      "nameEn": "Melbourne",
+      "countryKo": "오스트레일리아",
+      "countryEn": "Australia",
+      "region": "oceania",
+      "coords": { "x": 820, "y": 425 },
+      "specialties": [
+        {
+          "icon": "coffee",
+          "nameKo": "커피",
+          "nameEn": "Coffee",
+          "descKo": "멜버른의 커피 문화는 세계적으로 유명해, 작은 카페마다 최고 수준의 커피를 내려줘요"
+        },
+        {
+          "icon": "cricket",
+          "nameKo": "크리켓",
+          "nameEn": "Cricket",
+          "descKo": "영국에서 전해진 크리켓은 오스트레일리아에서 가장 인기 있는 스포츠예요"
+        },
+        {
+          "icon": "fashion",
+          "nameKo": "패션",
+          "nameEn": "Fashion",
+          "descKo": "멜버른은 오스트레일리아의 패션과 예술의 중심지로 개성 넘치는 거리 예술이 유명해요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "멜버른 크리켓 경기장",
+        "nameEn": "Melbourne Cricket Ground",
+        "descKo": "10만 명을 수용하는 오스트레일리아 최대 경기장이에요"
+      },
+      "funFact": "멜버른에는 세계에서 가장 긴 트램 노선이 있어요. 총 길이가 250킬로미터나 된답니다!"
+    },
+    {
+      "id": "auckland",
+      "nameKo": "오클랜드",
+      "nameEn": "Auckland",
+      "countryKo": "뉴질랜드",
+      "countryEn": "New Zealand",
+      "region": "oceania",
+      "coords": { "x": 875, "y": 430 },
+      "specialties": [
+        {
+          "icon": "kiwi_fruit",
+          "nameKo": "키위 과일",
+          "nameEn": "Kiwi Fruit",
+          "descKo": "갈색 털로 덮인 초록 과일로 뉴질랜드가 세계에 알린 대표 과일이에요"
+        },
+        {
+          "icon": "sheep",
+          "nameKo": "양",
+          "nameEn": "Sheep",
+          "descKo": "뉴질랜드에는 사람보다 양이 6배나 많아요! 양털로 만든 옷도 유명해요"
+        },
+        {
+          "icon": "rugby",
+          "nameKo": "럭비",
+          "nameEn": "Rugby",
+          "descKo": "올블랙스는 뉴질랜드 럭비 팀으로 세계에서 가장 강한 팀으로 손꼽혀요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "스카이 타워",
+        "nameEn": "Sky Tower",
+        "descKo": "328미터 높이로 남반구에서 가장 높은 탑이에요"
+      },
+      "funFact": "뉴질랜드는 세계에서 가장 먼저 여성에게 투표권을 준 나라예요. 무려 1893년의 일이에요!"
+    },
+    {
+      "id": "dubai",
+      "nameKo": "두바이",
+      "nameEn": "Dubai",
+      "countryKo": "아랍에미리트",
+      "countryEn": "United Arab Emirates",
+      "region": "middleeast",
+      "coords": { "x": 580, "y": 295 },
+      "specialties": [
+        {
+          "icon": "dates",
+          "nameKo": "대추야자",
+          "nameEn": "Dates",
+          "descKo": "야자나무 열매로 아주 달콤하며 아랍 사람들이 손님에게 처음 내오는 음식이에요"
+        },
+        {
+          "icon": "oil",
+          "nameKo": "석유",
+          "nameEn": "Oil",
+          "descKo": "사막 아래 석유가 엄청나게 나와 두바이를 세계에서 가장 화려한 도시로 만들었어요"
+        },
+        {
+          "icon": "gold",
+          "nameKo": "금",
+          "nameEn": "Gold",
+          "descKo": "두바이 황금 시장에서는 1킬로그램짜리 금덩어리까지 자유롭게 살 수 있어요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "부르즈 칼리파",
+        "nameEn": "Burj Khalifa",
+        "descKo": "828미터 높이로 현재 세계에서 가장 높은 건물이에요. 163층까지 있어요"
+      },
+      "funFact": "30년 전 두바이는 작은 어촌 마을이었어요. 지금은 세계 최고 빌딩이 있는 도시가 됐어요!"
+    },
+    {
+      "id": "riyadh",
+      "nameKo": "리야드",
+      "nameEn": "Riyadh",
+      "countryKo": "사우디아라비아",
+      "countryEn": "Saudi Arabia",
+      "region": "middleeast",
+      "coords": { "x": 560, "y": 305 },
+      "specialties": [
+        {
+          "icon": "oil",
+          "nameKo": "석유",
+          "nameEn": "Oil",
+          "descKo": "사우디아라비아는 세계에서 석유가 가장 많이 묻혀 있는 나라예요"
+        },
+        {
+          "icon": "dates",
+          "nameKo": "대추야자",
+          "nameEn": "Dates",
+          "descKo": "사우디아라비아에서는 대추야자가 약 400종이나 자라고, 세계에서 가장 많이 수출해요"
+        },
+        {
+          "icon": "camel",
+          "nameKo": "낙타",
+          "nameEn": "Camel",
+          "descKo": "사막의 배라 불리는 낙타는 물 없이 2주일을 버티는 대단한 동물이에요"
+        }
+      ],
+      "landmark": {
+        "nameKo": "킹덤 센터",
+        "nameEn": "Kingdom Centre",
+        "descKo": "꼭대기에 구름다리가 연결된 독특한 모양의 302미터 높이의 빌딩이에요"
+      },
+      "funFact": "사우디아라비아 사막 아래 석유가 얼마나 많냐면, 전 세계 사람들이 80년 넘게 쓸 수 있는 양이래요!"
+    }
+  ]
+}
