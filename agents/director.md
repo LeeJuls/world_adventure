@@ -1,7 +1,7 @@
 ---
 name: director
 description: PM 및 게임 개발 오케스트레이터. 전체 개발 진행 지휘, 에이전트 간 협업 조율, 단계별 세부 계획 수립. 사용자 개입 없이 개발 사이클을 자율 진행.
-model: claude-fable-5
+model: claude-opus-4-8
 tools:
   - Agent
   - Read

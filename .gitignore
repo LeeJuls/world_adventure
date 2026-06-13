@@ -2,3 +2,8 @@ node_modules/
 dist/
 .DS_Store
 *.log
+
+# Audio assets — keep copyrighted BGM out of the repo (game loads it locally)
+public/assets/audio/*.mp3
+public/assets/audio/*.ogg
+resourece/
