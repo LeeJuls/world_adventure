@@ -66,6 +66,7 @@ export class WorldMapScene extends Phaser.Scene {
   private rankText!: Phaser.GameObjects.Text;
   private posText!: Phaser.GameObjects.Text;
   private nearbyPort: Port | null = null;
+  private miniMapStatic!: Phaser.GameObjects.Graphics;
   private miniMapDynamic!: Phaser.GameObjects.Graphics;
   private shipStartX = lonToX(129.0);
   private shipStartY = latToY(35.0);
@@ -408,49 +409,12 @@ export class WorldMapScene extends Phaser.Scene {
     const { width, height } = this.scale;
     const ox = width - MINI_W - 8;
     const oy = height - MINI_H - 8;
-    const sx = MINI_W / WORLD_W;
-    const sy = MINI_H / WORLD_H;
 
-    const staticG = this.add.graphics().setScrollFactor(0).setDepth(21);
+    // Static layer: rebuilt on each continent discovery via rebuildMiniMapStatic()
+    this.miniMapStatic = this.add.graphics().setScrollFactor(0).setDepth(21);
+    this.rebuildMiniMapStatic();
 
-    // Ocean background
-    staticG.fillStyle(0x1a6b8a, 0.9);
-    staticG.fillRect(ox, oy, MINI_W, MINI_H);
-
-    // Land polygons — skip consecutive points within 0.5px at mini scale; split at antimeridian
-    staticG.fillStyle(0x5a8a32, 1);
-    this.landPolygons.forEach(poly => {
-      if (poly.length < 3) return;
-      let prevMx = -999, prevMy = -999;
-      let pts: { x: number; y: number }[] = [];
-
-      const flush = () => {
-        if (pts.length < 3) { pts = []; prevMx = -999; prevMy = -999; return; }
-        staticG.beginPath();
-        staticG.moveTo(pts[0].x, pts[0].y);
-        for (let i = 1; i < pts.length; i++) staticG.lineTo(pts[i].x, pts[i].y);
-        staticG.closePath();
-        staticG.fillPath();
-        pts = []; prevMx = -999; prevMy = -999;
-      };
-
-      for (let k = 0; k < poly.length; k++) {
-        if (k > 0 && Math.abs(poly[k][0] - poly[k - 1][0]) > WORLD_W / 2) flush();
-        const mx = ox + poly[k][0] * sx;
-        const my = oy + poly[k][1] * sy;
-        if (Math.abs(mx - prevMx) > 0.5 || Math.abs(my - prevMy) > 0.5) {
-          pts.push({ x: mx, y: my });
-          prevMx = mx; prevMy = my;
-        }
-      }
-      flush();
-    });
-
-    // Border
-    staticG.lineStyle(1, 0xffffff, 0.6);
-    staticG.strokeRect(ox, oy, MINI_W, MINI_H);
-
-    // Label
+    // Label (depth 23, above static/dynamic)
     this.add.text(ox + 4, oy + 2, '미니맵', {
       fontSize: '9px', color: '#aaddff',
     }).setScrollFactor(0).setDepth(23);
@@ -463,6 +427,71 @@ export class WorldMapScene extends Phaser.Scene {
       ox + MINI_W / 2, oy + MINI_H / 2, MINI_W, MINI_H, 0x000000, 0,
     ).setScrollFactor(0).setDepth(24).setInteractive({ useHandCursor: true });
     clickArea.on('pointerdown', () => this.toggleMapOverview());
+  }
+
+  private rebuildMiniMapStatic(): void {
+    const { width, height } = this.scale;
+    const ox = width - MINI_W - 8;
+    const oy = height - MINI_H - 8;
+    const sx = MINI_W / WORLD_W;
+    const sy = MINI_H / WORLD_H;
+    const g = this.miniMapStatic;
+    g.clear();
+
+    // Dark base — covers entire minimap (fog for all undiscovered areas)
+    g.fillStyle(0x040a14, 1.0);
+    g.fillRect(ox, oy, MINI_W, MINI_H);
+
+    // For each discovered continent: reveal ocean + draw land polygons in its bounding box
+    CONTINENT_DEFS.forEach(def => {
+      if (!this.discoveredContinents.has(def.id)) return;
+      const fx = ox + lonToX(def.box[0]) * sx;
+      const fy = oy + latToY(def.box[1]) * sy;
+      const fw = (lonToX(def.box[2]) - lonToX(def.box[0])) * sx;
+      const fh = (latToY(def.box[3]) - latToY(def.box[1])) * sy;
+
+      // Ocean reveal
+      g.fillStyle(0x1a6b8a, 0.9);
+      g.fillRect(fx, fy, fw, fh);
+
+      // Land polygons filtered to this continent box
+      const wx1 = lonToX(def.box[0]), wy1 = latToY(def.box[1]);
+      const wx2 = lonToX(def.box[2]), wy2 = latToY(def.box[3]);
+      g.fillStyle(0x5a8a32, 1);
+      this.landPolygons.forEach((poly, i) => {
+        if (poly.length < 3) return;
+        const [bx1, by1, bx2, by2] = this.landBounds[i];
+        if (bx1 > wx2 || bx2 < wx1 || by1 > wy2 || by2 < wy1) return;
+
+        let pts: { x: number; y: number }[] = [];
+        let prevMx = -999, prevMy = -999;
+
+        const flush = () => {
+          if (pts.length < 3) { pts = []; prevMx = -999; prevMy = -999; return; }
+          g.beginPath();
+          g.moveTo(pts[0].x, pts[0].y);
+          for (let j = 1; j < pts.length; j++) g.lineTo(pts[j].x, pts[j].y);
+          g.closePath();
+          g.fillPath();
+          pts = []; prevMx = -999; prevMy = -999;
+        };
+
+        for (let k = 0; k < poly.length; k++) {
+          if (k > 0 && Math.abs(poly[k][0] - poly[k - 1][0]) > WORLD_W / 2) flush();
+          const mx = ox + poly[k][0] * sx;
+          const my = oy + poly[k][1] * sy;
+          if (Math.abs(mx - prevMx) > 0.5 || Math.abs(my - prevMy) > 0.5) {
+            pts.push({ x: mx, y: my });
+            prevMx = mx; prevMy = my;
+          }
+        }
+        flush();
+      });
+    });
+
+    // Border
+    g.lineStyle(1, 0xffffff, 0.6);
+    g.strokeRect(ox, oy, MINI_W, MINI_H);
   }
 
   private updateMiniMap(): void {
@@ -483,8 +512,10 @@ export class WorldMapScene extends Phaser.Scene {
     g.lineStyle(1, 0xffffff, 0.5);
     g.strokeRect(vx, vy, vw, vh);
 
-    // Port dots
+    // Port dots (discovered continents only)
     for (const port of this.ports) {
+      const contId = this.portToContinent.get(port.id);
+      if (!contId || !this.discoveredContinents.has(contId)) continue;
       const mx = ox + lonToX(port.coords.lon) * sx;
       const my = oy + latToY(port.coords.lat) * sy;
       const found = this.discoveredPorts.has(port.id);
@@ -660,7 +691,10 @@ export class WorldMapScene extends Phaser.Scene {
       const id = this.pendingContinentReveal;
       this.pendingContinentReveal = null;
       const def = CONTINENT_DEFS.find(d => d.id === id);
-      if (def) this.showContinentBanner(def.nameKo);
+      if (def) {
+        this.showContinentBanner(def.nameKo);
+        this.rebuildMiniMapStatic();
+      }
     }
   }
 
@@ -715,13 +749,36 @@ export class WorldMapScene extends Phaser.Scene {
     container.add(closeBtn);
 
     const mapGfx = this.add.graphics();
-    mapGfx.fillStyle(0x1a6b8a, 1);
+
+    // Step 1: entire map is dark (unknown)
+    mapGfx.fillStyle(0x020408, 1);
     mapGfx.fillRect(MX, MY, MW, MH);
 
-    // Land outline (antimeridian-safe, same logic as minimap)
+    // Step 2: reveal ocean for discovered continents only
+    CONTINENT_DEFS.forEach(def => {
+      if (!this.discoveredContinents.has(def.id)) return;
+      const fx = MX + lonToX(def.box[0]) * sx;
+      const fy = MY + latToY(def.box[1]) * sy;
+      const fw = (lonToX(def.box[2]) - lonToX(def.box[0])) * sx;
+      const fh = (latToY(def.box[3]) - latToY(def.box[1])) * sy;
+      mapGfx.fillStyle(0x1a6b8a, 1);
+      mapGfx.fillRect(fx, fy, fw, fh);
+    });
+
+    // Step 3: draw land polygons — only those whose bounding box intersects a discovered box
+    const discoveredWorldBoxes = CONTINENT_DEFS
+      .filter(d => this.discoveredContinents.has(d.id))
+      .map(d => [lonToX(d.box[0]), latToY(d.box[1]), lonToX(d.box[2]), latToY(d.box[3])] as const);
+
     mapGfx.fillStyle(0x5a8a32, 1);
-    this.landPolygons.forEach(poly => {
+    this.landPolygons.forEach((poly, i) => {
       if (poly.length < 3) return;
+      const [bx1, by1, bx2, by2] = this.landBounds[i];
+      const inDiscovered = discoveredWorldBoxes.some(([dx1, dy1, dx2, dy2]) =>
+        bx1 <= dx2 && bx2 >= dx1 && by1 <= dy2 && by2 >= dy1
+      );
+      if (!inDiscovered) return;
+
       let pts: { x: number; y: number }[] = [];
       let prevMx = -999, prevMy = -999;
 
@@ -746,27 +803,29 @@ export class WorldMapScene extends Phaser.Scene {
       }
       flush();
     });
+
+    // Step 4: re-cover undiscovered areas (handles polygon bleed from adjacent continents)
+    CONTINENT_DEFS.forEach(def => {
+      if (this.discoveredContinents.has(def.id)) return;
+      const fx = MX + lonToX(def.box[0]) * sx;
+      const fy = MY + latToY(def.box[1]) * sy;
+      const fw = (lonToX(def.box[2]) - lonToX(def.box[0])) * sx;
+      const fh = (latToY(def.box[3]) - latToY(def.box[1])) * sy;
+      mapGfx.fillStyle(0x020408, 1);
+      mapGfx.fillRect(fx, fy, fw, fh);
+    });
+
     container.add(mapGfx);
 
-    // Fog + continent labels
-    const fogG = this.add.graphics();
+    // Continent labels (discovered only)
     CONTINENT_DEFS.forEach(def => {
-      if (this.discoveredContinents.has(def.id)) {
-        const lx = MX + (lonToX(def.box[0]) + lonToX(def.box[2])) / 2 * sx;
-        const ly = MY + (latToY(def.box[1]) + latToY(def.box[3])) / 2 * sy;
-        container.add(this.add.text(lx, ly, def.nameKo, {
-          fontSize: '9px', color: '#ffdd88',
-        }).setOrigin(0.5));
-      } else {
-        const fx = MX + lonToX(def.box[0]) * sx;
-        const fy = MY + latToY(def.box[1]) * sy;
-        const fw = (lonToX(def.box[2]) - lonToX(def.box[0])) * sx;
-        const fh = (latToY(def.box[3]) - latToY(def.box[1])) * sy;
-        fogG.fillStyle(0x020408, 0.78);
-        fogG.fillRect(fx, fy, fw, fh);
-      }
+      if (!this.discoveredContinents.has(def.id)) return;
+      const lx = MX + (lonToX(def.box[0]) + lonToX(def.box[2])) / 2 * sx;
+      const ly = MY + (latToY(def.box[1]) + latToY(def.box[3])) / 2 * sy;
+      container.add(this.add.text(lx, ly, def.nameKo, {
+        fontSize: '9px', color: '#ffdd88',
+      }).setOrigin(0.5));
     });
-    container.add(fogG);
 
     // Port dots (only for discovered continents)
     const portG = this.add.graphics();

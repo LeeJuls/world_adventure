@@ -60,6 +60,36 @@ console.log('Generated world-map.svg (' + Math.round(svg.length / 1024) + 'KB)')
 const polygons = [];
 const bounds = [];
 
+function splitRingAtAntimeridian(pts, W) {
+  let hasCrossing = false;
+  for (let i = 0; i < pts.length; i++) {
+    if (Math.abs(pts[(i + 1) % pts.length][0] - pts[i][0]) > W / 2) {
+      hasCrossing = true; break;
+    }
+  }
+  if (!hasCrossing) return [pts];
+
+  const result = [];
+  let cur = [];
+  for (let i = 0; i < pts.length; i++) {
+    const j = (i + 1) % pts.length;
+    cur.push(pts[i]);
+    if (Math.abs(pts[j][0] - pts[i][0]) > W / 2) {
+      const [x0, y0] = pts[i], [x1, y1] = pts[j];
+      let t, xClose, xOpen;
+      if (x0 > W / 2) { t = (W - x0) / (x1 + W - x0); xClose = W; xOpen = 0; }
+      else             { t = x0 / (x0 + W - x1);         xClose = 0; xOpen = W; }
+      const yc = Math.round(y0 + t * (y1 - y0));
+      cur.push([xClose, yc]);
+      result.push(cur);
+      cur = [[xOpen, yc]];
+    }
+  }
+  if (result.length % 2 === 0 && cur.length > 0) result[0] = [...cur, ...result[0]];
+  else if (cur.length >= 3) result.push(cur);
+  return result.filter(r => r.length >= 3);
+}
+
 const landFeatures = geo.features || [geo];
 landFeatures.forEach(f => {
   const geom = f.geometry || f;
@@ -72,14 +102,16 @@ landFeatures.forEach(f => {
   }
   rings.forEach(ring => {
     if (!ring || ring.length < 3) return;
-    const pts = ring.map(([lon, lat]) => [
+    const rawPts = ring.map(([lon, lat]) => [
       Math.round((lon + 180) / 360 * W),
       Math.round((90 - lat) / 180 * H),
     ]);
-    const xs = pts.map(p => p[0]);
-    const ys = pts.map(p => p[1]);
-    polygons.push(pts);
-    bounds.push([Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)]);
+    for (const pts of splitRingAtAntimeridian(rawPts, W)) {
+      const xs = pts.map(p => p[0]);
+      const ys = pts.map(p => p[1]);
+      polygons.push(pts);
+      bounds.push([Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)]);
+    }
   });
 });
 
