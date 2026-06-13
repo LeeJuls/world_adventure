@@ -6,6 +6,8 @@ import { PortScene } from './scenes/PortScene';
 import { LogbookScene } from './scenes/LogbookScene';
 import { VictoryScene } from './scenes/VictoryScene';
 import { SaveSlotScene } from './scenes/SaveSlotScene';
+import { AudioControlScene } from './scenes/AudioControlScene';
+import { audio } from './audio/AudioManager';
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -21,6 +23,7 @@ const config: Phaser.Types.Core.GameConfig = {
     LogbookScene,
     VictoryScene,
     SaveSlotScene,
+    AudioControlScene, // last → renders on top; runs in parallel as a persistent overlay
   ],
   scale: {
     mode: Phaser.Scale.FIT,
@@ -28,4 +31,5 @@ const config: Phaser.Types.Core.GameConfig = {
   },
 };
 
-new Phaser.Game(config);
+const game = new Phaser.Game(config);
+audio.init(game);

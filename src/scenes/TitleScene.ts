@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { audio } from '../audio/AudioManager';
 
 const PALETTE = {
   ocean: 0x1a6b8a,
@@ -17,6 +18,10 @@ export class TitleScene extends Phaser.Scene {
 
   create(): void {
     const { width, height } = this.scale;
+
+    // Browser autoplay policy: BGM may only start after a user gesture. The first
+    // click anywhere on the title is that gesture.
+    this.input.once('pointerdown', () => audio.startBgm());
 
     // Ocean background
     this.add.rectangle(width / 2, height / 2, width, height, PALETTE.darkBg);
