@@ -47,7 +47,9 @@ for (let lat = -60; lat <= 60; lat += 30) {
   grid += '<line x1="0" y1="' + y.toFixed(1) + '" x2="' + W + '" y2="' + y.toFixed(1) + '" stroke="#1e7ba0" stroke-width="1" opacity="0.25"/>';
 }
 
-const svg = '<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '">\n  <rect width="' + W + '" height="' + H + '" fill="#1a6b8a"/>\n  ' + grid + '\n  <g fill="#7ab648" stroke="#5a8a32" stroke-width="0.8" stroke-opacity="0.6">\n' + pathData + '\n  </g>\n</svg>';
+// Rasterize at 4096x2048 (fits WebGL texture limits) but viewBox spans the full coordinate space
+const RENDER_W = 4096, RENDER_H = 2048;
+const svg = '<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="' + RENDER_W + '" height="' + RENDER_H + '" viewBox="0 0 ' + W + ' ' + H + '">\n  <rect width="' + W + '" height="' + H + '" fill="#1a6b8a"/>\n  ' + grid + '\n  <g fill="#7ab648" stroke="#5a8a32" stroke-width="0.8" stroke-opacity="0.6">\n' + pathData + '\n  </g>\n</svg>';
 
 const outDir = resolve(projectRoot, 'public/assets');
 mkdirSync(outDir, { recursive: true });
