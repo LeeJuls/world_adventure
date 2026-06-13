@@ -85,8 +85,7 @@ function splitRingAtAntimeridian(pts, W) {
       cur = [[xOpen, yc]];
     }
   }
-  if (result.length % 2 === 0 && cur.length > 0) result[0] = [...cur, ...result[0]];
-  else if (cur.length >= 3) result.push(cur);
+  if (cur.length >= 3) result.push(cur);
   return result.filter(r => r.length >= 3);
 }
 

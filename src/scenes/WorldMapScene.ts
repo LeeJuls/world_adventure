@@ -36,7 +36,7 @@ const CONTINENT_DEFS: ContinentDef[] = [
   { id: 'eastern_europe',          nameKo: '동유럽·러시아',       isStart: false, ports: ['moscow'],                                                                   box: [18,68,52,46] },
   { id: 'north_africa',            nameKo: '북아프리카',          isStart: false, ports: ['cairo','casablanca','alexandria'],                                           box: [-20,40,38,18] },
   { id: 'west_africa',             nameKo: '서아프리카',          isStart: false, ports: ['lagos','dakar'],                                                            box: [-26,20,12,-2] },
-  { id: 'east_africa',             nameKo: '동아프리카',          isStart: false, ports: ['zanzibar','nairobi'],                                                       box: [28,6,52,-14] },
+  { id: 'east_africa',             nameKo: '동아프리카',          isStart: false, ports: ['zanzibar','nairobi'],                                                       box: [12,12,52,-14] },
   { id: 'southern_africa',         nameKo: '남아프리카',          isStart: false, ports: ['cape_town'],                                                               box: [8,-18,38,-42] },
   { id: 'north_america',           nameKo: '북아메리카',          isStart: false, ports: ['new_york','washington_dc','los_angeles','chicago'],                         box: [-130,54,-60,24] },
   { id: 'central_america',         nameKo: '중앙아메리카·카리브해', isStart: false, ports: ['havana','mexico_city'],                                                     box: [-120,30,-70,8] },
