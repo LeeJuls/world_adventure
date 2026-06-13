@@ -1,0 +1,55 @@
+import { feature } from 'topojson-client';
+import { readFileSync, writeFileSync, mkdirSync } from 'fs';
+import { resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const projectRoot = resolve(__dirname, '..');
+
+const topoPath = resolve(projectRoot, 'node_modules/world-atlas/land-110m.json');
+const topology = JSON.parse(readFileSync(topoPath, 'utf-8'));
+
+const geo = feature(topology, topology.objects.land);
+
+const W = 4096, H = 2048;
+
+function project(lon, lat) {
+  return [(lon + 180) / 360 * W, (90 - lat) / 180 * H];
+}
+
+function ringToPath(ring) {
+  return ring.map(([lon, lat], i) => {
+    const [x, y] = project(lon, lat);
+    return (i === 0 ? 'M' : 'L') + x.toFixed(1) + ',' + y.toFixed(1);
+  }).join('') + 'Z';
+}
+
+function geomToPath(geom) {
+  if (!geom) return '';
+  if (geom.type === 'Polygon') return geom.coordinates.map(ringToPath).join('');
+  if (geom.type === 'MultiPolygon') return geom.coordinates.flatMap(p => p.map(ringToPath)).join('');
+  return '';
+}
+
+const features = geo.features || [geo];
+const pathData = features
+  .map(f => { const d = geomToPath(f.geometry || f); return d ? '  <path d="' + d + '"/>' : ''; })
+  .filter(Boolean)
+  .join('\n');
+
+let grid = '';
+for (let lon = -150; lon <= 150; lon += 30) {
+  const x = (lon + 180) / 360 * W;
+  grid += '<line x1="' + x.toFixed(1) + '" y1="0" x2="' + x.toFixed(1) + '" y2="' + H + '" stroke="#1e7ba0" stroke-width="1" opacity="0.25"/>';
+}
+for (let lat = -60; lat <= 60; lat += 30) {
+  const y = (90 - lat) / 180 * H;
+  grid += '<line x1="0" y1="' + y.toFixed(1) + '" x2="' + W + '" y2="' + y.toFixed(1) + '" stroke="#1e7ba0" stroke-width="1" opacity="0.25"/>';
+}
+
+const svg = '<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '">\n  <rect width="' + W + '" height="' + H + '" fill="#1a6b8a"/>\n  ' + grid + '\n  <g fill="#7ab648" stroke="#5a8a32" stroke-width="0.8" stroke-opacity="0.6">\n' + pathData + '\n  </g>\n</svg>';
+
+const outDir = resolve(projectRoot, 'public/assets');
+mkdirSync(outDir, { recursive: true });
+writeFileSync(resolve(outDir, 'world-map.svg'), svg);
+console.log('Generated world-map.svg (' + Math.round(svg.length / 1024) + 'KB)');

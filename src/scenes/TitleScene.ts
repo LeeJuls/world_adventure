@@ -51,7 +51,7 @@ export class TitleScene extends Phaser.Scene {
     const startBtn = this.createButton(width / 2, height / 2 + 80, '탐험 시작!', PALETTE.oceanLight);
     startBtn.on('pointerdown', () => {
       this.cameras.main.fadeOut(400);
-      this.time.delayedCall(400, () => this.scene.start('CharacterSelectScene'));
+      setTimeout(() => this.scene.start('CharacterSelectScene'), 420);
     });
 
     if (hasSave) {
@@ -59,8 +59,8 @@ export class TitleScene extends Phaser.Scene {
       contBtn.on('pointerdown', () => {
         const state = JSON.parse(localStorage.getItem('worldExplorerState')!);
         this.cameras.main.fadeOut(400);
-        this.time.delayedCall(400, () =>
-          this.scene.start('WorldMapScene', { character: state.character })
+        setTimeout(() =>
+          this.scene.start('WorldMapScene', { character: state.character }), 420
         );
       });
     }

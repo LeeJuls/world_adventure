@@ -9,7 +9,10 @@
       "countryKo": "대한민국",
       "countryEn": "South Korea",
       "region": "asia",
-      "coords": { "x": 760, "y": 270 },
+      "coords": {
+        "lat": 37.57,
+        "lon": 127
+      },
       "specialties": [
         {
           "icon": "kimchi",
@@ -44,7 +47,10 @@
       "countryKo": "일본",
       "countryEn": "Japan",
       "region": "asia",
-      "coords": { "x": 800, "y": 280 },
+      "coords": {
+        "lat": 35.68,
+        "lon": 139.69
+      },
       "specialties": [
         {
           "icon": "sushi",
@@ -79,7 +85,10 @@
       "countryKo": "중국",
       "countryEn": "China",
       "region": "asia",
-      "coords": { "x": 740, "y": 260 },
+      "coords": {
+        "lat": 39.91,
+        "lon": 116.39
+      },
       "specialties": [
         {
           "icon": "peking_duck",
@@ -114,7 +123,10 @@
       "countryKo": "중국",
       "countryEn": "China",
       "region": "asia",
-      "coords": { "x": 760, "y": 290 },
+      "coords": {
+        "lat": 31.22,
+        "lon": 121.46
+      },
       "specialties": [
         {
           "icon": "xiaolongbao",
@@ -149,7 +161,10 @@
       "countryKo": "중국 (홍콩 특별행정구)",
       "countryEn": "Hong Kong SAR, China",
       "region": "asia",
-      "coords": { "x": 750, "y": 310 },
+      "coords": {
+        "lat": 22.32,
+        "lon": 114.17
+      },
       "specialties": [
         {
           "icon": "dim_sum",
@@ -184,7 +199,10 @@
       "countryKo": "싱가포르",
       "countryEn": "Singapore",
       "region": "asia",
-      "coords": { "x": 740, "y": 340 },
+      "coords": {
+        "lat": 1.35,
+        "lon": 103.82
+      },
       "specialties": [
         {
           "icon": "chili_crab",
@@ -219,7 +237,10 @@
       "countryKo": "태국",
       "countryEn": "Thailand",
       "region": "asia",
-      "coords": { "x": 720, "y": 315 },
+      "coords": {
+        "lat": 13.75,
+        "lon": 100.52
+      },
       "specialties": [
         {
           "icon": "pad_thai",
@@ -254,7 +275,10 @@
       "countryKo": "인도",
       "countryEn": "India",
       "region": "asia",
-      "coords": { "x": 660, "y": 310 },
+      "coords": {
+        "lat": 19.08,
+        "lon": 72.88
+      },
       "specialties": [
         {
           "icon": "bollywood",
@@ -289,7 +313,10 @@
       "countryKo": "인도",
       "countryEn": "India",
       "region": "asia",
-      "coords": { "x": 685, "y": 295 },
+      "coords": {
+        "lat": 22.57,
+        "lon": 88.36
+      },
       "specialties": [
         {
           "icon": "jute",
@@ -324,7 +351,10 @@
       "countryKo": "인도네시아",
       "countryEn": "Indonesia",
       "region": "asia",
-      "coords": { "x": 740, "y": 355 },
+      "coords": {
+        "lat": -6.21,
+        "lon": 106.85
+      },
       "specialties": [
         {
           "icon": "batik",
@@ -359,7 +389,10 @@
       "countryKo": "베트남",
       "countryEn": "Vietnam",
       "region": "asia",
-      "coords": { "x": 730, "y": 300 },
+      "coords": {
+        "lat": 21.03,
+        "lon": 105.85
+      },
       "specialties": [
         {
           "icon": "pho",
@@ -394,7 +427,10 @@
       "countryKo": "파키스탄",
       "countryEn": "Pakistan",
       "region": "asia",
-      "coords": { "x": 645, "y": 285 },
+      "coords": {
+        "lat": 24.86,
+        "lon": 67.01
+      },
       "specialties": [
         {
           "icon": "biryani",
@@ -429,7 +465,10 @@
       "countryKo": "포르투갈",
       "countryEn": "Portugal",
       "region": "europe",
-      "coords": { "x": 370, "y": 255 },
+      "coords": {
+        "lat": 38.72,
+        "lon": -9.14
+      },
       "specialties": [
         {
           "icon": "pastel",
@@ -464,7 +503,10 @@
       "countryKo": "스페인",
       "countryEn": "Spain",
       "region": "europe",
-      "coords": { "x": 390, "y": 248 },
+      "coords": {
+        "lat": 40.42,
+        "lon": -3.7
+      },
       "specialties": [
         {
           "icon": "flamenco",
@@ -499,7 +541,10 @@
       "countryKo": "프랑스",
       "countryEn": "France",
       "region": "europe",
-      "coords": { "x": 405, "y": 235 },
+      "coords": {
+        "lat": 48.86,
+        "lon": 2.35
+      },
       "specialties": [
         {
           "icon": "baguette",
@@ -534,7 +579,10 @@
       "countryKo": "영국",
       "countryEn": "United Kingdom",
       "region": "europe",
-      "coords": { "x": 400, "y": 225 },
+      "coords": {
+        "lat": 51.51,
+        "lon": -0.13
+      },
       "specialties": [
         {
           "icon": "fish_chips",
@@ -569,7 +617,10 @@
       "countryKo": "네덜란드",
       "countryEn": "Netherlands",
       "region": "europe",
-      "coords": { "x": 410, "y": 220 },
+      "coords": {
+        "lat": 52.37,
+        "lon": 4.9
+      },
       "specialties": [
         {
           "icon": "tulip",
@@ -604,7 +655,10 @@
       "countryKo": "독일",
       "countryEn": "Germany",
       "region": "europe",
-      "coords": { "x": 425, "y": 218 },
+      "coords": {
+        "lat": 52.52,
+        "lon": 13.41
+      },
       "specialties": [
         {
           "icon": "sausage",
@@ -639,7 +693,10 @@
       "countryKo": "이탈리아",
       "countryEn": "Italy",
       "region": "europe",
-      "coords": { "x": 430, "y": 255 },
+      "coords": {
+        "lat": 41.9,
+        "lon": 12.5
+      },
       "specialties": [
         {
           "icon": "pizza",
@@ -674,7 +731,10 @@
       "countryKo": "이탈리아",
       "countryEn": "Italy",
       "region": "europe",
-      "coords": { "x": 430, "y": 245 },
+      "coords": {
+        "lat": 45.44,
+        "lon": 12.33
+      },
       "specialties": [
         {
           "icon": "glass",
@@ -709,7 +769,10 @@
       "countryKo": "그리스",
       "countryEn": "Greece",
       "region": "europe",
-      "coords": { "x": 450, "y": 265 },
+      "coords": {
+        "lat": 37.98,
+        "lon": 23.73
+      },
       "specialties": [
         {
           "icon": "olive",
@@ -744,7 +807,10 @@
       "countryKo": "튀르키예",
       "countryEn": "Turkey",
       "region": "europe",
-      "coords": { "x": 465, "y": 255 },
+      "coords": {
+        "lat": 41.01,
+        "lon": 28.95
+      },
       "specialties": [
         {
           "icon": "turkish_delight",
@@ -779,7 +845,10 @@
       "countryKo": "스페인",
       "countryEn": "Spain",
       "region": "europe",
-      "coords": { "x": 400, "y": 255 },
+      "coords": {
+        "lat": 41.39,
+        "lon": 2.16
+      },
       "specialties": [
         {
           "icon": "paella",
@@ -814,7 +883,10 @@
       "countryKo": "노르웨이",
       "countryEn": "Norway",
       "region": "europe",
-      "coords": { "x": 415, "y": 200 },
+      "coords": {
+        "lat": 59.91,
+        "lon": 10.75
+      },
       "specialties": [
         {
           "icon": "salmon",
@@ -849,7 +921,10 @@
       "countryKo": "스웨덴",
       "countryEn": "Sweden",
       "region": "europe",
-      "coords": { "x": 430, "y": 200 },
+      "coords": {
+        "lat": 59.33,
+        "lon": 18.07
+      },
       "specialties": [
         {
           "icon": "meatballs",
@@ -884,7 +959,10 @@
       "countryKo": "덴마크",
       "countryEn": "Denmark",
       "region": "europe",
-      "coords": { "x": 420, "y": 210 },
+      "coords": {
+        "lat": 55.68,
+        "lon": 12.57
+      },
       "specialties": [
         {
           "icon": "danish_pastry",
@@ -919,7 +997,10 @@
       "countryKo": "러시아",
       "countryEn": "Russia",
       "region": "europe",
-      "coords": { "x": 480, "y": 215 },
+      "coords": {
+        "lat": 55.75,
+        "lon": 37.62
+      },
       "specialties": [
         {
           "icon": "borscht",
@@ -954,7 +1035,10 @@
       "countryKo": "이집트",
       "countryEn": "Egypt",
       "region": "africa",
-      "coords": { "x": 475, "y": 285 },
+      "coords": {
+        "lat": 30.06,
+        "lon": 31.25
+      },
       "specialties": [
         {
           "icon": "pyramid",
@@ -989,7 +1073,10 @@
       "countryKo": "모로코",
       "countryEn": "Morocco",
       "region": "africa",
-      "coords": { "x": 380, "y": 275 },
+      "coords": {
+        "lat": 33.59,
+        "lon": -7.62
+      },
       "specialties": [
         {
           "icon": "tagine",
@@ -1024,7 +1111,10 @@
       "countryKo": "나이지리아",
       "countryEn": "Nigeria",
       "region": "africa",
-      "coords": { "x": 415, "y": 330 },
+      "coords": {
+        "lat": 6.45,
+        "lon": 3.4
+      },
       "specialties": [
         {
           "icon": "jollof_rice",
@@ -1059,7 +1149,10 @@
       "countryKo": "남아프리카 공화국",
       "countryEn": "South Africa",
       "region": "africa",
-      "coords": { "x": 450, "y": 420 },
+      "coords": {
+        "lat": -33.93,
+        "lon": 18.42
+      },
       "specialties": [
         {
           "icon": "diamond",
@@ -1094,7 +1187,10 @@
       "countryKo": "탄자니아",
       "countryEn": "Tanzania",
       "region": "africa",
-      "coords": { "x": 490, "y": 360 },
+      "coords": {
+        "lat": -6.16,
+        "lon": 39.2
+      },
       "specialties": [
         {
           "icon": "clove",
@@ -1129,7 +1225,10 @@
       "countryKo": "케냐",
       "countryEn": "Kenya",
       "region": "africa",
-      "coords": { "x": 490, "y": 345 },
+      "coords": {
+        "lat": -1.29,
+        "lon": 36.82
+      },
       "specialties": [
         {
           "icon": "safari",
@@ -1164,7 +1263,10 @@
       "countryKo": "이집트",
       "countryEn": "Egypt",
       "region": "africa",
-      "coords": { "x": 470, "y": 275 },
+      "coords": {
+        "lat": 31.2,
+        "lon": 29.92
+      },
       "specialties": [
         {
           "icon": "seafood",
@@ -1199,7 +1301,10 @@
       "countryKo": "세네갈",
       "countryEn": "Senegal",
       "region": "africa",
-      "coords": { "x": 370, "y": 305 },
+      "coords": {
+        "lat": 14.72,
+        "lon": -17.47
+      },
       "specialties": [
         {
           "icon": "thieboudienne",
@@ -1234,7 +1339,10 @@
       "countryKo": "미국",
       "countryEn": "United States",
       "region": "americas",
-      "coords": { "x": 245, "y": 245 },
+      "coords": {
+        "lat": 40.71,
+        "lon": -74.01
+      },
       "specialties": [
         {
           "icon": "hot_dog",
@@ -1269,7 +1377,10 @@
       "countryKo": "미국",
       "countryEn": "United States",
       "region": "americas",
-      "coords": { "x": 250, "y": 248 },
+      "coords": {
+        "lat": 38.91,
+        "lon": -77.04
+      },
       "specialties": [
         {
           "icon": "politics",
@@ -1304,7 +1415,10 @@
       "countryKo": "미국",
       "countryEn": "United States",
       "region": "americas",
-      "coords": { "x": 180, "y": 265 },
+      "coords": {
+        "lat": 34.05,
+        "lon": -118.24
+      },
       "specialties": [
         {
           "icon": "film",
@@ -1339,7 +1453,10 @@
       "countryKo": "미국",
       "countryEn": "United States",
       "region": "americas",
-      "coords": { "x": 230, "y": 238 },
+      "coords": {
+        "lat": 41.88,
+        "lon": -87.63
+      },
       "specialties": [
         {
           "icon": "deep_dish_pizza",
@@ -1374,7 +1491,10 @@
       "countryKo": "브라질",
       "countryEn": "Brazil",
       "region": "americas",
-      "coords": { "x": 300, "y": 385 },
+      "coords": {
+        "lat": -22.91,
+        "lon": -43.17
+      },
       "specialties": [
         {
           "icon": "coffee",
@@ -1409,7 +1529,10 @@
       "countryKo": "아르헨티나",
       "countryEn": "Argentina",
       "region": "americas",
-      "coords": { "x": 285, "y": 415 },
+      "coords": {
+        "lat": -34.61,
+        "lon": -58.37
+      },
       "specialties": [
         {
           "icon": "tango",
@@ -1444,7 +1567,10 @@
       "countryKo": "쿠바",
       "countryEn": "Cuba",
       "region": "americas",
-      "coords": { "x": 245, "y": 290 },
+      "coords": {
+        "lat": 23.13,
+        "lon": -82.38
+      },
       "specialties": [
         {
           "icon": "cigar",
@@ -1479,7 +1605,10 @@
       "countryKo": "멕시코",
       "countryEn": "Mexico",
       "region": "americas",
-      "coords": { "x": 195, "y": 295 },
+      "coords": {
+        "lat": 19.43,
+        "lon": -99.13
+      },
       "specialties": [
         {
           "icon": "taco",
@@ -1514,7 +1643,10 @@
       "countryKo": "페루",
       "countryEn": "Peru",
       "region": "americas",
-      "coords": { "x": 255, "y": 375 },
+      "coords": {
+        "lat": -12.05,
+        "lon": -77.04
+      },
       "specialties": [
         {
           "icon": "ceviche",
@@ -1549,7 +1681,10 @@
       "countryKo": "칠레",
       "countryEn": "Chile",
       "region": "americas",
-      "coords": { "x": 270, "y": 415 },
+      "coords": {
+        "lat": -33.46,
+        "lon": -70.65
+      },
       "specialties": [
         {
           "icon": "wine",
@@ -1584,7 +1719,10 @@
       "countryKo": "오스트레일리아",
       "countryEn": "Australia",
       "region": "oceania",
-      "coords": { "x": 830, "y": 415 },
+      "coords": {
+        "lat": -33.87,
+        "lon": 151.21
+      },
       "specialties": [
         {
           "icon": "kangaroo",
@@ -1619,7 +1757,10 @@
       "countryKo": "오스트레일리아",
       "countryEn": "Australia",
       "region": "oceania",
-      "coords": { "x": 820, "y": 425 },
+      "coords": {
+        "lat": -37.81,
+        "lon": 144.96
+      },
       "specialties": [
         {
           "icon": "coffee",
@@ -1654,7 +1795,10 @@
       "countryKo": "뉴질랜드",
       "countryEn": "New Zealand",
       "region": "oceania",
-      "coords": { "x": 875, "y": 430 },
+      "coords": {
+        "lat": -36.86,
+        "lon": 174.76
+      },
       "specialties": [
         {
           "icon": "kiwi_fruit",
@@ -1689,7 +1833,10 @@
       "countryKo": "아랍에미리트",
       "countryEn": "United Arab Emirates",
       "region": "middleeast",
-      "coords": { "x": 580, "y": 295 },
+      "coords": {
+        "lat": 25.2,
+        "lon": 55.27
+      },
       "specialties": [
         {
           "icon": "dates",
@@ -1724,7 +1871,10 @@
       "countryKo": "사우디아라비아",
       "countryEn": "Saudi Arabia",
       "region": "middleeast",
-      "coords": { "x": 560, "y": 305 },
+      "coords": {
+        "lat": 24.69,
+        "lon": 46.72
+      },
       "specialties": [
         {
           "icon": "oil",

@@ -148,8 +148,6 @@ export class CharacterSelectScene extends Phaser.Scene {
   private selectCharacter(char: CharacterType): void {
     this.selectedChar = char;
     this.cameras.main.fadeOut(400);
-    this.time.delayedCall(400, () => {
-      this.scene.start('WorldMapScene', { character: char });
-    });
+    setTimeout(() => this.scene.start('WorldMapScene', { character: char }), 420);
   }
 }

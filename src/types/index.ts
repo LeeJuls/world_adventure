@@ -18,7 +18,7 @@ export interface Port {
   countryKo: string;
   countryEn: string;
   region: 'asia' | 'europe' | 'africa' | 'americas' | 'oceania' | 'middleeast';
-  coords: { x: number; y: number };
+  coords: { lat: number; lon: number };
   specialties: Specialty[];
   landmark: Landmark;
   funFact: string;
@@ -35,8 +35,10 @@ export type CharacterType = 'jun' | 'ara';
 export interface GameState {
   character: CharacterType | null;
   discoveredPorts: string[];
-  playerX: number;
-  playerY: number;
+  collectedSpecialties: string[];
+  isCompleted: boolean;
+  playerLat: number;
+  playerLon: number;
   lastPlayed: string;
 }
 
@@ -47,9 +49,16 @@ export interface WorldMapSceneData {
 export interface PortSceneData {
   port: Port;
   character: CharacterType;
+  collectedSpecialties: string[];
 }
 
 export interface LogbookSceneData {
   discoveredPorts: string[];
+  collectedSpecialties: string[];
   character: CharacterType;
+}
+
+export interface VictorySceneData {
+  character: CharacterType;
+  totalTime: number;
 }
