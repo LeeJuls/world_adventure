@@ -11,7 +11,7 @@ const topology = JSON.parse(readFileSync(topoPath, 'utf-8'));
 
 const geo = feature(topology, topology.objects.land);
 
-const W = 4096, H = 2048;
+const W = 40960, H = 20480;
 
 function project(lon, lat) {
   return [(lon + 180) / 360 * W, (90 - lat) / 180 * H];
@@ -53,3 +53,34 @@ const outDir = resolve(projectRoot, 'public/assets');
 mkdirSync(outDir, { recursive: true });
 writeFileSync(resolve(outDir, 'world-map.svg'), svg);
 console.log('Generated world-map.svg (' + Math.round(svg.length / 1024) + 'KB)');
+
+// Generate land-polygons.json for collision detection
+const polygons = [];
+const bounds = [];
+
+const landFeatures = geo.features || [geo];
+landFeatures.forEach(f => {
+  const geom = f.geometry || f;
+  if (!geom) return;
+  let rings = [];
+  if (geom.type === 'Polygon') {
+    rings = [geom.coordinates[0]];
+  } else if (geom.type === 'MultiPolygon') {
+    rings = geom.coordinates.map(p => p[0]);
+  }
+  rings.forEach(ring => {
+    if (!ring || ring.length < 3) return;
+    const pts = ring.map(([lon, lat]) => [
+      Math.round((lon + 180) / 360 * W),
+      Math.round((90 - lat) / 180 * H),
+    ]);
+    const xs = pts.map(p => p[0]);
+    const ys = pts.map(p => p[1]);
+    polygons.push(pts);
+    bounds.push([Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)]);
+  });
+});
+
+const lpJson = JSON.stringify({ polygons, bounds });
+writeFileSync(resolve(outDir, 'land-polygons.json'), lpJson);
+console.log('Generated land-polygons.json (' + Math.round(lpJson.length / 1024) + 'KB, ' + polygons.length + ' polygons)');

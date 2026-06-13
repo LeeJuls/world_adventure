@@ -2,10 +2,10 @@ import Phaser from 'phaser';
 import type { CharacterType, Port, GameState, WorldMapSceneData } from '../types';
 import portsData from '../data/ports';
 
-const WORLD_W = 4096;
-const WORLD_H = 2048;
+const WORLD_W = 40960;
+const WORLD_H = 20480;
 const SHIP_SPEED = 280;
-const PORT_RADIUS = 55;
+const PORT_RADIUS = 550;
 const TOTAL_SPECIALTIES = 150;
 
 function lonToX(lon: number): number {
@@ -35,8 +35,10 @@ export class WorldMapScene extends Phaser.Scene {
   private specialtyText!: Phaser.GameObjects.Text;
   private rankText!: Phaser.GameObjects.Text;
   private nearbyPort: Port | null = null;
-  private shipStartX = lonToX(127.0);
-  private shipStartY = latToY(37.57);
+  private shipStartX = lonToX(129.0);
+  private shipStartY = latToY(35.0);
+  private landPolygons: number[][][] = [];
+  private landBounds: number[][] = [];
   private gameStartTime = 0;
 
   constructor() {
@@ -47,6 +49,9 @@ export class WorldMapScene extends Phaser.Scene {
     if (!this.textures.exists('worldmap')) {
       this.load.image('worldmap', 'assets/world-map.svg');
     }
+    if (!this.cache.json.has('landPolygons')) {
+      this.load.json('landPolygons', 'assets/land-polygons.json');
+    }
   }
 
   init(data: WorldMapSceneData): void {
@@ -56,6 +61,13 @@ export class WorldMapScene extends Phaser.Scene {
   }
 
   create(): void {
+    // Land polygons for collision
+    const lpData = this.cache.json.get('landPolygons');
+    if (lpData) {
+      this.landPolygons = lpData.polygons as number[][][];
+      this.landBounds = lpData.bounds as number[][];
+    }
+
     // World map image
     const mapImg = this.textures.exists('worldmap')
       ? this.add.image(WORLD_W / 2, WORLD_H / 2, 'worldmap')
@@ -121,14 +133,39 @@ export class WorldMapScene extends Phaser.Scene {
     if (this.cursors.up.isDown || this.wasd.W.isDown) dy = -speed;
     else if (this.cursors.down.isDown || this.wasd.S.isDown) dy = speed;
 
-    this.ship.setPosition(
-      Phaser.Math.Clamp(this.ship.x + dx, 16, WORLD_W - 16),
-      Phaser.Math.Clamp(this.ship.y + dy, 16, WORLD_H - 16),
-    );
+    if (dx === 0 && dy === 0) return;
 
-    if (dx !== 0 || dy !== 0) {
-      this.ship.setRotation(Math.atan2(dy, dx) - Math.PI / 2);
+    const newX = Phaser.Math.Clamp(this.ship.x + dx, 16, WORLD_W - 16);
+    const newY = Phaser.Math.Clamp(this.ship.y + dy, 16, WORLD_H - 16);
+
+    if (!this.isOnLand(newX, newY)) {
+      this.ship.setPosition(newX, newY);
+    } else if (!this.isOnLand(newX, this.ship.y)) {
+      this.ship.setPosition(newX, this.ship.y);
+    } else if (!this.isOnLand(this.ship.x, newY)) {
+      this.ship.setPosition(this.ship.x, newY);
     }
+
+    this.ship.setRotation(Math.atan2(dy, dx) - Math.PI / 2);
+  }
+
+  private isOnLand(px: number, py: number): boolean {
+    for (let i = 0; i < this.landBounds.length; i++) {
+      const [minX, minY, maxX, maxY] = this.landBounds[i];
+      if (px < minX || px > maxX || py < minY || py > maxY) continue;
+      const poly = this.landPolygons[i];
+      let inside = false;
+      for (let j = 0, k = poly.length - 1; j < poly.length; k = j++) {
+        const xi = poly[j][0], yi = poly[j][1];
+        const xk = poly[k][0], yk = poly[k][1];
+        if ((yi > py) !== (yk > py) &&
+            px < ((xk - xi) * (py - yi)) / (yk - yi) + xi) {
+          inside = !inside;
+        }
+      }
+      if (inside) return true;
+    }
+    return false;
   }
 
   // ── Port proximity ────────────────────────────────────────────────────────
