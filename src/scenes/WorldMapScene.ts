@@ -46,9 +46,6 @@ export class WorldMapScene extends Phaser.Scene {
   }
 
   preload(): void {
-    if (!this.textures.exists('worldmap')) {
-      this.load.image('worldmap', 'assets/world-map.svg');
-    }
     if (!this.cache.json.has('landPolygons')) {
       this.load.json('landPolygons', 'assets/land-polygons.json');
     }
@@ -68,12 +65,8 @@ export class WorldMapScene extends Phaser.Scene {
       this.landBounds = lpData.bounds as number[][];
     }
 
-    // World map image
-    const mapImg = this.textures.exists('worldmap')
-      ? this.add.image(WORLD_W / 2, WORLD_H / 2, 'worldmap')
-      : null;
-    if (mapImg) mapImg.setDisplaySize(WORLD_W, WORLD_H);
-    else this.drawFallbackMap();
+    // Vector map — always sharp at any zoom
+    this.drawVectorMap();
 
     // Port markers
     this.ports = portsData.ports;
@@ -281,30 +274,48 @@ export class WorldMapScene extends Phaser.Scene {
     this.ship = this.add.container(this.shipStartX, this.shipStartY, [g]).setDepth(10);
   }
 
-  // Fallback: draw simple continent shapes if SVG didn't load
-  private drawFallbackMap(): void {
+  private drawVectorMap(): void {
     const g = this.add.graphics();
-    // Ocean
+
+    // Ocean background
     g.fillStyle(0x1a6b8a);
     g.fillRect(0, 0, WORLD_W, WORLD_H);
 
-    // Grid lines
-    g.lineStyle(1, 0x1e7ba0, 0.2);
-    for (let x = 0; x <= WORLD_W; x += 256) g.lineBetween(x, 0, x, WORLD_H);
-    for (let y = 0; y <= WORLD_H; y += 256) g.lineBetween(0, y, WORLD_W, y);
+    // Grid lines (lon/lat every 30°)
+    g.lineStyle(1, 0x1e7ba0, 0.25);
+    for (let lon = -150; lon <= 150; lon += 30) {
+      const x = (lon + 180) / 360 * WORLD_W;
+      g.lineBetween(x, 0, x, WORLD_H);
+    }
+    for (let lat = -60; lat <= 60; lat += 30) {
+      const y = (90 - lat) / 180 * WORLD_H;
+      g.lineBetween(0, y, WORLD_W, y);
+    }
 
-    // Simple continent blocks (scaled up ×4 from original)
-    const land = (x: number, y: number, w: number, h: number) => {
-      g.fillStyle(0x7ab648, 0.9);
-      g.fillRect(x, y, w, h);
-    };
-    land(1480, 780, 520, 360);   // Europe
-    land(2000, 780, 1240, 480);  // Asia
-    land(1560, 1080, 440, 660);  // Africa
-    land(600, 800, 520, 560);    // North America
-    land(940, 1380, 340, 360);   // South America
-    land(3100, 1560, 440, 220);  // Oceania
-    land(2120, 1060, 360, 280);  // Middle East
+    // Land polygons — filled then stroked for crisp coastlines
+    g.fillStyle(0x7ab648, 1);
+    this.landPolygons.forEach(poly => {
+      if (poly.length < 3) return;
+      g.beginPath();
+      g.moveTo(poly[0][0], poly[0][1]);
+      for (let i = 1; i < poly.length; i++) {
+        g.lineTo(poly[i][0], poly[i][1]);
+      }
+      g.closePath();
+      g.fillPath();
+    });
+
+    g.lineStyle(1, 0x5a8a32, 0.7);
+    this.landPolygons.forEach(poly => {
+      if (poly.length < 3) return;
+      g.beginPath();
+      g.moveTo(poly[0][0], poly[0][1]);
+      for (let i = 1; i < poly.length; i++) {
+        g.lineTo(poly[i][0], poly[i][1]);
+      }
+      g.closePath();
+      g.strokePath();
+    });
   }
 
   // ── HUD ───────────────────────────────────────────────────────────────────
