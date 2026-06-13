@@ -10,7 +10,7 @@ export class WorldMapScene extends Phaser.Scene {
   private ship!: Phaser.GameObjects.Container;
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private wasd!: { W: Phaser.Input.Keyboard.Key; A: Phaser.Input.Keyboard.Key; S: Phaser.Input.Keyboard.Key; D: Phaser.Input.Keyboard.Key };
-  private keyA!: Phaser.Input.Keyboard.Key;
+  private keySpace!: Phaser.Input.Keyboard.Key;
   private character: CharacterType = 'jun';
   private ports: Port[] = [];
   private discoveredPorts: Set<string> = new Set();
@@ -49,7 +49,7 @@ export class WorldMapScene extends Phaser.Scene {
     this.createHUD();
 
     // Anchor hint (hidden by default)
-    this.anchorHint = this.add.text(0, 0, '⚓ A 키로 발견!', {
+    this.anchorHint = this.add.text(0, 0, '⚓ Space 로 발견!', {
       fontSize: '14px',
       color: '#ffdd88',
       backgroundColor: 'rgba(0,0,0,0.7)',
@@ -64,7 +64,7 @@ export class WorldMapScene extends Phaser.Scene {
       S: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.S),
       D: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.D),
     };
-    this.keyA = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.A);
+    this.keySpace = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
     this.cameras.main.fadeIn(500);
   }
@@ -73,8 +73,8 @@ export class WorldMapScene extends Phaser.Scene {
     this.handleShipMovement(delta);
     this.checkPortProximity();
 
-    // A key to discover nearby port
-    if (Phaser.Input.Keyboard.JustDown(this.keyA) && this.nearbyPort) {
+    // Space key to discover nearby port
+    if (Phaser.Input.Keyboard.JustDown(this.keySpace) && this.nearbyPort) {
       this.discoverPort(this.nearbyPort);
     }
   }
