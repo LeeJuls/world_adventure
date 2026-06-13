@@ -19,7 +19,7 @@ export class PortScene extends Phaser.Scene {
   create(): void {
     const { width, height } = this.scale;
     const port = this.port;
-    const cardW = 640, cardH = 460;
+    const cardW = 832, cardH = 530;
     const cx = width / 2, cy = height / 2;
 
     // Dim overlay
@@ -58,7 +58,7 @@ export class PortScene extends Phaser.Scene {
       fontSize: '17px', color: '#ffffff', fontStyle: 'bold',
     });
     const lmDesc = this.add.text(-cardW / 2 + 20, -cardH / 2 + 134, port.landmark.descKo, {
-      fontSize: '13px', color: '#cccccc',
+      fontSize: '14px', color: '#cccccc',
       wordWrap: { width: cardW - 40 },
     });
 
@@ -72,26 +72,26 @@ export class PortScene extends Phaser.Scene {
       const sx = -cardW / 2 + 20 + i * spCellW;
       const sy = -cardH / 2 + 207;
 
-      const box = this.add.rectangle(sx + spCellW / 2, sy + 36, spCellW - 8, 70,
+      const box = this.add.rectangle(sx + spCellW / 2, sy + 50, spCellW - 8, 100,
         0xffffff, 0.07).setStrokeStyle(1, 0x44ff88, 0.6);
 
       const badge = this.add.text(sx + spCellW - 6, sy + 4, '✨ NEW!', {
-        fontSize: '9px', color: '#44ff88',
+        fontSize: '12px', color: '#44ff88',
         backgroundColor: 'rgba(0,50,0,0.7)',
-        padding: { x: 3, y: 1 },
+        padding: { x: 4, y: 2 },
       }).setOrigin(1, 0);
 
-      const nameKo = this.add.text(sx + spCellW / 2, sy + 20, s.nameKo, {
-        fontSize: '15px', color: '#ffffff', fontStyle: 'bold',
+      const nameKo = this.add.text(sx + spCellW / 2, sy + 22, s.nameKo, {
+        fontSize: '17px', color: '#ffffff', fontStyle: 'bold',
       }).setOrigin(0.5);
 
-      const nameEn = this.add.text(sx + spCellW / 2, sy + 40, s.nameEn, {
-        fontSize: '11px', color: '#aaddff',
+      const nameEn = this.add.text(sx + spCellW / 2, sy + 44, s.nameEn, {
+        fontSize: '13px', color: '#aaddff',
       }).setOrigin(0.5);
 
-      const desc = this.add.text(sx + spCellW / 2, sy + 56, s.descKo, {
-        fontSize: '10px', color: '#bbbbbb',
-        wordWrap: { width: spCellW - 12 },
+      const desc = this.add.text(sx + spCellW / 2, sy + 62, s.descKo, {
+        fontSize: '12px', color: '#cccccc',
+        wordWrap: { width: spCellW - 16 },
         align: 'center',
       }).setOrigin(0.5, 0);
 
@@ -101,11 +101,11 @@ export class PortScene extends Phaser.Scene {
     // Fun fact
     const factBg = this.add.rectangle(0, cardH / 2 - 66, cardW - 20, 52,
       0xffff00, 0.06).setStrokeStyle(1, 0xffdd00, 0.4);
-    const factLabel = this.add.text(-cardW / 2 + 20, cardH / 2 - 88, '💡 재미있는 사실!', {
-      fontSize: '13px', color: '#ffff88', fontStyle: 'bold',
+    const factLabel = this.add.text(-cardW / 2 + 20, cardH / 2 - 92, '💡 재미있는 사실!', {
+      fontSize: '14px', color: '#ffff88', fontStyle: 'bold',
     });
-    const fact = this.add.text(0, cardH / 2 - 64, port.funFact, {
-      fontSize: '12px', color: '#ffffcc',
+    const fact = this.add.text(0, cardH / 2 - 66, port.funFact, {
+      fontSize: '13px', color: '#ffffcc',
       wordWrap: { width: cardW - 40 },
       align: 'center',
     }).setOrigin(0.5);
@@ -116,7 +116,7 @@ export class PortScene extends Phaser.Scene {
       ? `"드디어 찾았다! 여기가 바로 ${port.nameKo}이구나!"`
       : `"여기가 ${port.nameKo}이구나. 노트에 기록해야겠어!"`;
     const speech = this.add.text(0, cardH / 2 - 14, charMsg, {
-      fontSize: '13px', color: charColor, fontStyle: 'italic',
+      fontSize: '14px', color: charColor, fontStyle: 'italic',
     }).setOrigin(0.5);
 
     // Close button
