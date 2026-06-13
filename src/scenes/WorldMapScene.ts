@@ -10,6 +10,13 @@ const TOTAL_SPECIALTIES = 150;
 const MINI_W = 200;
 const MINI_H = 100;
 
+// Fog of war (classic, ship-centred reveal). 256 divides both world dims exactly → no overflow.
+const FOG_CELL = 256;
+const FOG_COLS = WORLD_W / FOG_CELL; // 160
+const FOG_ROWS = WORLD_H / FOG_CELL; // 80
+const REVEAL_RADIUS = 900;           // world units cleared around the ship as it sails
+const FOG_COLOR = 0x040a14;          // opaque dark — hides unexplored map + port markers
+
 function lonToX(lon: number): number {
   return (lon + 180) / 360 * WORLD_W;
 }
@@ -26,8 +33,8 @@ interface ContinentDef {
 }
 
 const CONTINENT_DEFS: ContinentDef[] = [
-  { id: 'east_asia',               nameKo: '동아시아',           isStart: true,  ports: ['seoul','tokyo','beijing','shanghai','hongkong'],                           box: [105,48,152,18] },
-  { id: 'southeast_asia',          nameKo: '동남아시아',          isStart: false, ports: ['singapore','bangkok','jakarta','hanoi'],                                    box: [115,25,122,-14] },
+  { id: 'east_asia',               nameKo: '동아시아',           isStart: true,  ports: ['seoul','tokyo','beijing','shanghai','hongkong'],                           box: [113,48,152,18] },
+  { id: 'southeast_asia',          nameKo: '동남아시아',          isStart: false, ports: ['singapore','bangkok','jakarta','hanoi'],                                    box: [96,25,113,-14] },
   { id: 'south_asia',              nameKo: '남아시아',            isStart: false, ports: ['mumbai','kolkata','karachi'],                                               box: [58,35,98,2] },
   { id: 'middle_east',             nameKo: '중동',               isStart: false, ports: ['dubai','riyadh'],                                                           box: [33,38,62,8] },
   { id: 'western_europe',          nameKo: '서유럽',             isStart: false, ports: ['lisbon','madrid','paris','london','amsterdam','berlin','barcelona'],         box: [-18,58,20,33] },
@@ -66,7 +73,8 @@ export class WorldMapScene extends Phaser.Scene {
   private rankText!: Phaser.GameObjects.Text;
   private posText!: Phaser.GameObjects.Text;
   private nearbyPort: Port | null = null;
-  private miniMapStatic!: Phaser.GameObjects.Graphics;
+  private miniMapBase!: Phaser.GameObjects.Graphics;
+  private miniMapFog!: Phaser.GameObjects.Graphics;
   private miniMapDynamic!: Phaser.GameObjects.Graphics;
   private shipStartX = lonToX(125.8);
   private shipStartY = latToY(37.4);
@@ -76,11 +84,15 @@ export class WorldMapScene extends Phaser.Scene {
   private saveSlot: number | null = null;
   private discoveredContinents: Set<string> = new Set();
   private portToContinent: Map<string, string> = new Map();
-  private fogGraphics: Map<string, Phaser.GameObjects.Graphics> = new Map();
-  private fogLabels: Map<string, Phaser.GameObjects.Text> = new Map();
+  private revealed: Uint8Array = new Uint8Array(FOG_COLS * FOG_ROWS); // 1 = explored
+  private fogDirty = true;
+  private worldFog!: Phaser.GameObjects.Graphics; // depth 6 — over map+ports, under ship
+  private revealable: Uint8Array = new Uint8Array(FOG_COLS * FOG_ROWS); // cells that CAN be explored
+  private totalRevealable = 0; // denominator for the exploration % (computed once in initFog)
   private pendingContinentReveal: string | null = null;
   private isOverviewOpen = false;
-  private mapOverlayContainer: Phaser.GameObjects.Container | null = null;
+  private mapOverlayObjects: Phaser.GameObjects.GameObject[] = [];
+  private _overviewEscHandler: (() => void) | null = null;
 
   constructor() {
     super({ key: 'WorldMapScene' });
@@ -120,12 +132,12 @@ export class WorldMapScene extends Phaser.Scene {
     // Vector map — always sharp at any zoom
     this.drawVectorMap();
 
-    // Fog of war (depth 3 — above map, below port markers)
-    this.createFog();
-
-    // Port markers (depth 5 — visible through fog as navigation hints)
+    // Port markers (depth 5 — hidden by fog until their area is explored)
     this.ports = portsData.ports;
     this.drawPortMarkers();
+
+    // Fog of war (depth 6 — over map + port markers, under ship at depth 10)
+    this.initFog();
 
     // Player ship
     this.createShip();
@@ -172,6 +184,21 @@ export class WorldMapScene extends Phaser.Scene {
       `${Math.abs(lat).toFixed(1)}°${lat >= 0 ? 'N' : 'S'}  ${Math.abs(lon).toFixed(1)}°${lon >= 0 ? 'E' : 'W'}`
     );
 
+    // Sailing into an undiscovered continent's region discovers it (banner + full reveal).
+    if (!this.isOverviewOpen) {
+      for (const def of CONTINENT_DEFS) {
+        if (this.discoveredContinents.has(def.id)) continue;
+        const [lonMin, latMax, lonMax, latMin] = def.box;
+        if (lon >= lonMin && lon <= lonMax && lat >= latMin && lat <= latMax) {
+          this.revealContinent(def.id, true);
+          break; // one reveal per frame for banner clarity
+        }
+      }
+    }
+
+    // Redraw fog if the ship cleared new area or a continent was revealed this frame
+    this.rebuildFog();
+
     if (Phaser.Input.Keyboard.JustDown(this.keySpace) && this.nearbyPort) {
       this.discoverPort(this.nearbyPort);
     }
@@ -207,6 +234,9 @@ export class WorldMapScene extends Phaser.Scene {
     }
 
     this.ship.setRotation(Math.atan2(dy, dx) - Math.PI / 2);
+
+    // Classic fog of war: clear the area the ship sails through
+    this.revealCircle(this.ship.x, this.ship.y, REVEAL_RADIUS);
   }
 
   private isOnLand(px: number, py: number): boolean {
@@ -409,17 +439,22 @@ export class WorldMapScene extends Phaser.Scene {
     const { width, height } = this.scale;
     const ox = width - MINI_W - 8;
     const oy = height - MINI_H - 8;
+    const sx = MINI_W / WORLD_W, sy = MINI_H / WORLD_H;
 
-    // Static layer: rebuilt on each continent discovery via rebuildMiniMapStatic()
-    this.miniMapStatic = this.add.graphics().setScrollFactor(0).setDepth(21);
-    this.rebuildMiniMapStatic();
+    // Base layer: full world map, drawn once (depth 20)
+    this.miniMapBase = this.add.graphics().setScrollFactor(0).setDepth(20);
+    this.drawWorldBase(this.miniMapBase, ox, oy, sx, sy);
 
-    // Label (depth 23, above static/dynamic)
+    // Fog overlay (depth 21): rebuilt when exploration changes via rebuildFog()
+    this.miniMapFog = this.add.graphics().setScrollFactor(0).setDepth(21);
+    this.drawFogOverlay(this.miniMapFog, ox, oy, sx, sy);
+
+    // Label (depth 23, above fog/dynamic)
     this.add.text(ox + 4, oy + 2, '미니맵', {
       fontSize: '9px', color: '#aaddff',
     }).setScrollFactor(0).setDepth(23);
 
-    // Dynamic layer (ports + ship + viewport rect)
+    // Dynamic layer (ports + ship + viewport rect + border)
     this.miniMapDynamic = this.add.graphics().setScrollFactor(0).setDepth(22);
 
     // Transparent click area over minimap to open world overview
@@ -429,69 +464,165 @@ export class WorldMapScene extends Phaser.Scene {
     clickArea.on('pointerdown', () => this.toggleMapOverview());
   }
 
-  private rebuildMiniMapStatic(): void {
-    const { width, height } = this.scale;
-    const ox = width - MINI_W - 8;
-    const oy = height - MINI_H - 8;
-    const sx = MINI_W / WORLD_W;
-    const sy = MINI_H / WORLD_H;
-    const g = this.miniMapStatic;
-    g.clear();
+  // Draw the full world (ocean + all land) into g, scaled. Used by minimap & overview
+  // as the base layer; the fog overlay is drawn on top to hide unexplored regions.
+  private drawWorldBase(g: Phaser.GameObjects.Graphics, ox: number, oy: number, sx: number, sy: number): void {
+    g.fillStyle(0x1a6b8a, 1);
+    g.fillRect(ox, oy, WORLD_W * sx, WORLD_H * sy);
 
-    // Dark base — covers entire minimap (fog for all undiscovered areas)
-    g.fillStyle(0x040a14, 1.0);
-    g.fillRect(ox, oy, MINI_W, MINI_H);
+    g.fillStyle(0x5a8a32, 1);
+    this.landPolygons.forEach(poly => {
+      if (poly.length < 3) return;
+      let pts: { x: number; y: number }[] = [];
+      let pmx = -999, pmy = -999;
+      const flush = () => {
+        if (pts.length < 3) { pts = []; pmx = -999; pmy = -999; return; }
+        g.beginPath();
+        g.moveTo(pts[0].x, pts[0].y);
+        for (let j = 1; j < pts.length; j++) g.lineTo(pts[j].x, pts[j].y);
+        g.closePath();
+        g.fillPath();
+        pts = []; pmx = -999; pmy = -999;
+      };
+      for (let k = 0; k < poly.length; k++) {
+        if (k > 0 && Math.abs(poly[k][0] - poly[k - 1][0]) > WORLD_W / 2) flush();
+        const mx = ox + poly[k][0] * sx;
+        const my = oy + poly[k][1] * sy;
+        if (Math.abs(mx - pmx) > 0.5 || Math.abs(my - pmy) > 0.5) { pts.push({ x: mx, y: my }); pmx = mx; pmy = my; }
+      }
+      flush();
+    });
+  }
 
-    // For each discovered continent: reveal ocean + draw land polygons in its bounding box
-    CONTINENT_DEFS.forEach(def => {
-      if (!this.discoveredContinents.has(def.id)) return;
-      const fx = ox + lonToX(def.box[0]) * sx;
-      const fy = oy + latToY(def.box[1]) * sy;
-      const fw = (lonToX(def.box[2]) - lonToX(def.box[0])) * sx;
-      const fh = (latToY(def.box[3]) - latToY(def.box[1])) * sy;
+  // Draw the fog overlay (dark over unexplored cells) into g, scaled. Runs of adjacent
+  // unexplored cells in a row are merged into a single rect to keep the rect count low.
+  private drawFogOverlay(g: Phaser.GameObjects.Graphics, ox: number, oy: number, sx: number, sy: number): void {
+    g.fillStyle(FOG_COLOR, 1);
+    for (let r = 0; r < FOG_ROWS; r++) {
+      let c = 0;
+      while (c < FOG_COLS) {
+        if (this.revealed[r * FOG_COLS + c]) { c++; continue; }
+        let c2 = c;
+        while (c2 < FOG_COLS && !this.revealed[r * FOG_COLS + c2]) c2++;
+        // +1 bleed closes sub-pixel seams between cells at small (minimap) scales
+        g.fillRect(ox + c * FOG_CELL * sx, oy + r * FOG_CELL * sy, (c2 - c) * FOG_CELL * sx + 1, FOG_CELL * sy + 1);
+        c = c2;
+      }
+    }
+  }
 
-      // Ocean reveal
-      g.fillStyle(0x1a6b8a, 0.9);
-      g.fillRect(fx, fy, fw, fh);
+  // Mark all cells within radius r of world point (wx,wy) as explored. Returns true if anything changed.
+  private revealCircle(wx: number, wy: number, r: number): boolean {
+    const c0 = Math.max(0, Math.floor((wx - r) / FOG_CELL));
+    const c1 = Math.min(FOG_COLS - 1, Math.floor((wx + r) / FOG_CELL));
+    const r0 = Math.max(0, Math.floor((wy - r) / FOG_CELL));
+    const r1 = Math.min(FOG_ROWS - 1, Math.floor((wy + r) / FOG_CELL));
+    const r2 = r * r;
+    let changed = false;
+    for (let ry = r0; ry <= r1; ry++) {
+      for (let cx = c0; cx <= c1; cx++) {
+        const idx = ry * FOG_COLS + cx;
+        if (this.revealed[idx]) continue;
+        const dx = (cx + 0.5) * FOG_CELL - wx;
+        const dy = (ry + 0.5) * FOG_CELL - wy;
+        if (dx * dx + dy * dy <= r2) { this.revealed[idx] = 1; changed = true; }
+      }
+    }
+    if (changed) this.fogDirty = true;
+    return changed;
+  }
 
-      // Land polygons filtered to this continent box
-      const wx1 = lonToX(def.box[0]), wy1 = latToY(def.box[1]);
-      const wx2 = lonToX(def.box[2]), wy2 = latToY(def.box[3]);
-      g.fillStyle(0x5a8a32, 1);
-      this.landPolygons.forEach((poly, i) => {
-        if (poly.length < 3) return;
-        const [bx1, by1, bx2, by2] = this.landBounds[i];
-        if (bx1 > wx2 || bx2 < wx1 || by1 > wy2 || by2 < wy1) return;
+  // Mark all cells inside a continent box [lonMin,latMax,lonMax,latMin] as explored.
+  private revealBox(box: number[]): void {
+    const c0 = Math.max(0, Math.floor(lonToX(box[0]) / FOG_CELL));
+    const c1 = Math.min(FOG_COLS - 1, Math.floor((lonToX(box[2]) - 0.001) / FOG_CELL));
+    const r0 = Math.max(0, Math.floor(latToY(box[1]) / FOG_CELL));
+    const r1 = Math.min(FOG_ROWS - 1, Math.floor((latToY(box[3]) - 0.001) / FOG_CELL));
+    for (let ry = r0; ry <= r1; ry++) {
+      for (let cx = c0; cx <= c1; cx++) {
+        const idx = ry * FOG_COLS + cx;
+        if (!this.revealed[idx]) { this.revealed[idx] = 1; this.fogDirty = true; }
+      }
+    }
+  }
 
-        let pts: { x: number; y: number }[] = [];
-        let prevMx = -999, prevMy = -999;
+  private initFog(): void {
+    this.revealed = new Uint8Array(FOG_COLS * FOG_ROWS);
+    // Reveal already-discovered continents (start = east_asia, or restored from a save)
+    for (const def of CONTINENT_DEFS) {
+      if (this.discoveredContinents.has(def.id)) this.revealBox(def.box);
+    }
+    // Reveal a generous area around the starting position
+    this.revealCircle(this.shipStartX, this.shipStartY, REVEAL_RADIUS * 1.5);
 
-        const flush = () => {
-          if (pts.length < 3) { pts = []; prevMx = -999; prevMy = -999; return; }
-          g.beginPath();
-          g.moveTo(pts[0].x, pts[0].y);
-          for (let j = 1; j < pts.length; j++) g.lineTo(pts[j].x, pts[j].y);
-          g.closePath();
-          g.fillPath();
-          pts = []; prevMx = -999; prevMy = -999;
-        };
+    this.computeRevealable();
 
-        for (let k = 0; k < poly.length; k++) {
-          if (k > 0 && Math.abs(poly[k][0] - poly[k - 1][0]) > WORLD_W / 2) flush();
-          const mx = ox + poly[k][0] * sx;
-          const my = oy + poly[k][1] * sy;
-          if (Math.abs(mx - prevMx) > 0.5 || Math.abs(my - prevMy) > 0.5) {
-            pts.push({ x: mx, y: my });
-            prevMx = mx; prevMy = my;
+    this.worldFog = this.add.graphics().setDepth(6);
+    this.fogDirty = true;
+    this.rebuildFog();
+  }
+
+  // Precompute which cells CAN ever be explored → the denominator for the exploration %.
+  // A cell counts if it is ocean, coastal land within REVEAL_RADIUS of ocean (a passing
+  // ship clears it), or inside a continent box (revealed wholesale on discovery). This makes
+  // 100% genuinely achievable (deep inland cells a ship can never reach are excluded).
+  private computeRevealable(): void {
+    const N = FOG_COLS * FOG_ROWS;
+    this.revealable = new Uint8Array(N);
+    const ocean = new Uint8Array(N);
+    for (let r = 0; r < FOG_ROWS; r++) {
+      for (let c = 0; c < FOG_COLS; c++) {
+        if (!this.isOnLand((c + 0.5) * FOG_CELL, (r + 0.5) * FOG_CELL)) ocean[r * FOG_COLS + c] = 1;
+      }
+    }
+    const rad = Math.ceil(REVEAL_RADIUS / FOG_CELL);
+    const r2 = REVEAL_RADIUS * REVEAL_RADIUS;
+    for (let r = 0; r < FOG_ROWS; r++) {
+      for (let c = 0; c < FOG_COLS; c++) {
+        if (!ocean[r * FOG_COLS + c]) continue;
+        const cx = (c + 0.5) * FOG_CELL, cy = (r + 0.5) * FOG_CELL;
+        for (let dr = -rad; dr <= rad; dr++) {
+          for (let dc = -rad; dc <= rad; dc++) {
+            const rr = r + dr, cc = c + dc;
+            if (rr < 0 || rr >= FOG_ROWS || cc < 0 || cc >= FOG_COLS) continue;
+            const ex = (cc + 0.5) * FOG_CELL - cx, ey = (rr + 0.5) * FOG_CELL - cy;
+            if (ex * ex + ey * ey <= r2) this.revealable[rr * FOG_COLS + cc] = 1;
           }
         }
-        flush();
-      });
-    });
+      }
+    }
+    for (const def of CONTINENT_DEFS) {
+      const c0 = Math.max(0, Math.floor(lonToX(def.box[0]) / FOG_CELL));
+      const c1 = Math.min(FOG_COLS - 1, Math.floor((lonToX(def.box[2]) - 0.001) / FOG_CELL));
+      const r0 = Math.max(0, Math.floor(latToY(def.box[1]) / FOG_CELL));
+      const r1 = Math.min(FOG_ROWS - 1, Math.floor((latToY(def.box[3]) - 0.001) / FOG_CELL));
+      for (let r = r0; r <= r1; r++) for (let c = c0; c <= c1; c++) this.revealable[r * FOG_COLS + c] = 1;
+    }
+    let total = 0;
+    for (let i = 0; i < N; i++) total += this.revealable[i];
+    this.totalRevealable = total;
+  }
 
-    // Border
-    g.lineStyle(1, 0xffffff, 0.6);
-    g.strokeRect(ox, oy, MINI_W, MINI_H);
+  // Map-opening progress (0-100): explored revealable cells / total revealable cells.
+  // The numerator can't exceed the denominator, so the value is naturally ≤ 100.
+  private explorationPercent(): number {
+    if (!this.totalRevealable) return 0;
+    let rc = 0;
+    for (let i = 0; i < this.revealed.length; i++) if (this.revealed[i] && this.revealable[i]) rc++;
+    return Math.min(100, Math.round(rc / this.totalRevealable * 100));
+  }
+
+  // Redraw fog on the main map + minimap when the explored set has changed.
+  private rebuildFog(): void {
+    if (!this.fogDirty) return;
+    this.worldFog.clear();
+    this.drawFogOverlay(this.worldFog, 0, 0, 1, 1);
+    if (this.miniMapFog) {
+      const { width, height } = this.scale;
+      this.miniMapFog.clear();
+      this.drawFogOverlay(this.miniMapFog, width - MINI_W - 8, height - MINI_H - 8, MINI_W / WORLD_W, MINI_H / WORLD_H);
+    }
+    this.fogDirty = false;
   }
 
   private updateMiniMap(): void {
@@ -502,6 +633,10 @@ export class WorldMapScene extends Phaser.Scene {
     const sy = MINI_H / WORLD_H;
     const g = this.miniMapDynamic;
     g.clear();
+
+    // Border (drawn here so it stays above the fog overlay)
+    g.lineStyle(1, 0xffffff, 0.6);
+    g.strokeRect(ox, oy, MINI_W, MINI_H);
 
     // Camera viewport rect
     const cam = this.cameras.main;
@@ -637,64 +772,30 @@ export class WorldMapScene extends Phaser.Scene {
     }
   }
 
-  private createFog(): void {
-    for (const def of CONTINENT_DEFS) {
-      if (this.discoveredContinents.has(def.id)) continue;
+  private revealContinent(continentId: string, immediate = false): void {
+    if (this.discoveredContinents.has(continentId)) return; // double-call guard
+    this.discoveredContinents.add(continentId);
 
-      const x = lonToX(def.box[0]);
-      const y = latToY(def.box[1]);
-      const w = lonToX(def.box[2]) - x;
-      const h = latToY(def.box[3]) - y;
+    const def = CONTINENT_DEFS.find(d => d.id === continentId);
+    if (def) this.revealBox(def.box); // clear the whole continent's fog at once
 
-      const gfx = this.add.graphics();
-      gfx.fillStyle(0x040a14, 0.82);
-      gfx.fillRect(x, y, w, h);
-      gfx.setDepth(3);
-      this.fogGraphics.set(def.id, gfx);
-
-      const rawSize = Math.round(Math.min(w, h) * 0.12);
-      const fontSize = Math.max(rawSize, 80);
-      const lbl = this.add.text(x + w / 2, y + h / 2, '???', {
-        fontSize: `${fontSize}px`,
-        color: '#8899aa',
-        stroke: '#000000',
-        strokeThickness: Math.round(fontSize * 0.07),
-      }).setOrigin(0.5).setDepth(3);
-      this.fogLabels.set(def.id, lbl);
+    if (immediate) {
+      // Discovered while actively sailing: show banner now (scene is running)
+      if (def) this.showContinentBanner(def.nameKo);
+    } else {
+      // Discovered via port → PortScene pauses; defer banner to resume to avoid mid-animation freeze
+      this.pendingContinentReveal = continentId;
     }
   }
 
-  private revealContinent(continentId: string): void {
-    const gfx = this.fogGraphics.get(continentId);
-    if (!gfx) return; // already revealed or in progress (double-call guard)
-
-    const lbl = this.fogLabels.get(continentId);
-    // Remove from maps immediately so double-calls become no-ops
-    this.fogGraphics.delete(continentId);
-    this.fogLabels.delete(continentId);
-    this.discoveredContinents.add(continentId);
-
-    this.tweens.add({
-      targets: [gfx, lbl].filter(Boolean),
-      alpha: 0,
-      duration: 1400,
-      ease: 'Cubic.Out',
-      onComplete: () => { gfx.destroy(); lbl?.destroy(); },
-    });
-
-    // Banner displayed after scene resumes (avoids mid-animation freeze during pause)
-    this.pendingContinentReveal = continentId;
-  }
-
   private onSceneResume(): void {
+    this.fogDirty = true;
+    this.rebuildFog();
     if (this.pendingContinentReveal) {
       const id = this.pendingContinentReveal;
       this.pendingContinentReveal = null;
       const def = CONTINENT_DEFS.find(d => d.id === id);
-      if (def) {
-        this.showContinentBanner(def.nameKo);
-        this.rebuildMiniMapStatic();
-      }
+      if (def) this.showContinentBanner(def.nameKo);
     }
   }
 
@@ -718,149 +819,114 @@ export class WorldMapScene extends Phaser.Scene {
   }
 
   private toggleMapOverview(): void {
-    if (this.mapOverlayContainer) { this.hideMapOverview(); return; }
+    if (this.mapOverlayObjects.length > 0) { this.hideMapOverview(); return; }
     this.showMapOverview();
   }
 
   private showMapOverview(): void {
-    if (this.mapOverlayContainer) return;
+    if (this.mapOverlayObjects.length > 0) return;
     this.isOverviewOpen = true;
 
     const { width, height } = this.scale;
-    const container = this.add.container(width / 2, height / 2);
-    container.setScrollFactor(0).setDepth(40);
-    this.mapOverlayContainer = container;
-
-    const MX = -320, MY = -140, MW = 640, MH = 300;
+    const MX = width / 2 - 320;
+    const MY = height / 2 - 140;
+    const MW = 640;
+    const MH = 300;
     const sx = MW / WORLD_W;
     const sy = MH / WORLD_H;
 
-    container.add(this.add.rectangle(0, 0, 720, 400, 0x0a1628, 0.96).setStrokeStyle(2, 0xffdd88));
-    container.add(this.add.text(0, -180, '🗺 세계 탐험 현황', {
-      fontSize: '20px', color: '#ffdd88', fontStyle: 'bold',
-    }).setOrigin(0.5));
+    const bg = this.add.rectangle(width / 2, height / 2, 720, 400, 0x0a1628, 0.96)
+      .setStrokeStyle(2, 0xffdd88).setScrollFactor(0).setDepth(40);
+    this.mapOverlayObjects.push(bg);
 
-    const closeBtn = this.add.text(342, -182, '✕', {
+    const titleTxt = this.add.text(width / 2, height / 2 - 180, '🗺 세계 탐험 현황', {
+      fontSize: '20px', color: '#ffdd88', fontStyle: 'bold',
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(41);
+    this.mapOverlayObjects.push(titleTxt);
+
+    // Map-opening progress bar + % (top of the modal, just under the title)
+    const pct = this.explorationPercent();
+    const barW = 320, barX = width / 2 - barW / 2, barY = height / 2 - 156;
+    const track = this.add.rectangle(width / 2, barY, barW, 14, 0x06121f)
+      .setStrokeStyle(1, 0x33506e).setScrollFactor(0).setDepth(41);
+    this.mapOverlayObjects.push(track);
+    const fill = this.add.rectangle(barX, barY, barW * pct / 100, 14, 0xffce5a)
+      .setOrigin(0, 0.5).setScrollFactor(0).setDepth(41);
+    this.mapOverlayObjects.push(fill);
+    const pctTxt = this.add.text(width / 2, barY, `탐험 현황 ${pct}%`, {
+      fontSize: '11px', color: '#ffffff', fontStyle: 'bold', stroke: '#000000', strokeThickness: 3,
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(42);
+    this.mapOverlayObjects.push(pctTxt);
+
+    const closeBtn = this.add.text(width / 2 + 342, height / 2 - 182, '✕', {
       fontSize: '18px', color: '#fff',
       backgroundColor: 'rgba(180,40,40,0.7)',
       padding: { x: 7, y: 3 },
-    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(41).setInteractive({ useHandCursor: true });
     closeBtn.on('pointerdown', () => this.hideMapOverview());
-    container.add(closeBtn);
+    this.mapOverlayObjects.push(closeBtn);
 
-    const mapGfx = this.add.graphics();
+    // Map content — identical renderer to the minimap: full world base + fog overlay
+    const mapGfx = this.add.graphics().setScrollFactor(0).setDepth(40);
+    this.drawWorldBase(mapGfx, MX, MY, sx, sy);
+    this.drawFogOverlay(mapGfx, MX, MY, sx, sy);
+    mapGfx.lineStyle(1, 0xffffff, 0.4);
+    mapGfx.strokeRect(MX, MY, MW, MH);
+    this.mapOverlayObjects.push(mapGfx);
 
-    // Step 1: entire map is dark (unknown)
-    mapGfx.fillStyle(0x020408, 1);
-    mapGfx.fillRect(MX, MY, MW, MH);
-
-    // Step 2: reveal ocean for discovered continents only
-    CONTINENT_DEFS.forEach(def => {
-      if (!this.discoveredContinents.has(def.id)) return;
-      const fx = MX + lonToX(def.box[0]) * sx;
-      const fy = MY + latToY(def.box[1]) * sy;
-      const fw = (lonToX(def.box[2]) - lonToX(def.box[0])) * sx;
-      const fh = (latToY(def.box[3]) - latToY(def.box[1])) * sy;
-      mapGfx.fillStyle(0x1a6b8a, 1);
-      mapGfx.fillRect(fx, fy, fw, fh);
-    });
-
-    // Step 3: draw land polygons — only those whose bounding box intersects a discovered box
-    const discoveredWorldBoxes = CONTINENT_DEFS
-      .filter(d => this.discoveredContinents.has(d.id))
-      .map(d => [lonToX(d.box[0]), latToY(d.box[1]), lonToX(d.box[2]), latToY(d.box[3])] as const);
-
-    mapGfx.fillStyle(0x5a8a32, 1);
-    this.landPolygons.forEach((poly, i) => {
-      if (poly.length < 3) return;
-      const [bx1, by1, bx2, by2] = this.landBounds[i];
-      const inDiscovered = discoveredWorldBoxes.some(([dx1, dy1, dx2, dy2]) =>
-        bx1 <= dx2 && bx2 >= dx1 && by1 <= dy2 && by2 >= dy1
-      );
-      if (!inDiscovered) return;
-
-      let pts: { x: number; y: number }[] = [];
-      let prevMx = -999, prevMy = -999;
-
-      const flush = () => {
-        if (pts.length < 3) { pts = []; prevMx = -999; prevMy = -999; return; }
-        mapGfx.beginPath();
-        mapGfx.moveTo(pts[0].x, pts[0].y);
-        for (let i = 1; i < pts.length; i++) mapGfx.lineTo(pts[i].x, pts[i].y);
-        mapGfx.closePath();
-        mapGfx.fillPath();
-        pts = []; prevMx = -999; prevMy = -999;
-      };
-
-      for (let k = 0; k < poly.length; k++) {
-        if (k > 0 && Math.abs(poly[k][0] - poly[k - 1][0]) > WORLD_W / 2) flush();
-        const mx = MX + poly[k][0] * sx;
-        const my = MY + poly[k][1] * sy;
-        if (Math.abs(mx - prevMx) > 0.5 || Math.abs(my - prevMy) > 0.5) {
-          pts.push({ x: mx, y: my });
-          prevMx = mx; prevMy = my;
-        }
-      }
-      flush();
-    });
-
-    // Step 4: re-cover undiscovered areas (handles polygon bleed from adjacent continents)
-    CONTINENT_DEFS.forEach(def => {
-      if (this.discoveredContinents.has(def.id)) return;
-      const fx = MX + lonToX(def.box[0]) * sx;
-      const fy = MY + latToY(def.box[1]) * sy;
-      const fw = (lonToX(def.box[2]) - lonToX(def.box[0])) * sx;
-      const fh = (latToY(def.box[3]) - latToY(def.box[1])) * sy;
-      mapGfx.fillStyle(0x020408, 1);
-      mapGfx.fillRect(fx, fy, fw, fh);
-    });
-
-    container.add(mapGfx);
-
-    // Continent labels (discovered only)
-    CONTINENT_DEFS.forEach(def => {
-      if (!this.discoveredContinents.has(def.id)) return;
+    // Discovered continent labels
+    for (const def of CONTINENT_DEFS) {
+      if (!this.discoveredContinents.has(def.id)) continue;
       const lx = MX + (lonToX(def.box[0]) + lonToX(def.box[2])) / 2 * sx;
       const ly = MY + (latToY(def.box[1]) + latToY(def.box[3])) / 2 * sy;
-      container.add(this.add.text(lx, ly, def.nameKo, {
-        fontSize: '9px', color: '#ffdd88',
-      }).setOrigin(0.5));
-    });
+      const lbl = this.add.text(lx, ly, def.nameKo ?? def.id, {
+        fontSize: '10px', color: '#ffdd88',
+      }).setOrigin(0.5).setScrollFactor(0).setDepth(41);
+      this.mapOverlayObjects.push(lbl);
+    }
 
-    // Port dots (only for discovered continents)
-    const portG = this.add.graphics();
+    const portG = this.add.graphics().setScrollFactor(0).setDepth(41);
     this.ports.forEach(p => {
       const contId = this.portToContinent.get(p.id);
       if (!contId || !this.discoveredContinents.has(contId)) return;
       const dx = MX + lonToX(p.coords.lon) * sx;
       const dy = MY + latToY(p.coords.lat) * sy;
       if (this.discoveredPorts.has(p.id)) {
-        portG.fillStyle(0x44ff88, 1); portG.fillCircle(dx, dy, 3);
+        portG.fillStyle(0x44ff88, 1);
+        portG.fillCircle(dx, dy, 3);
       } else {
-        portG.fillStyle(0xe8c870, 1); portG.fillCircle(dx, dy, 2);
+        portG.fillStyle(0xe8c870, 1);
+        portG.fillCircle(dx, dy, 2);
       }
     });
-    container.add(portG);
+    const shipMx = MX + this.ship.x * sx;
+    const shipMy = MY + this.ship.y * sy;
+    portG.fillStyle(0xffffff, 1);
+    portG.fillCircle(shipMx, shipMy, 4);
+    portG.lineStyle(1, 0xffdd88, 1);
+    portG.strokeCircle(shipMx, shipMy, 6);
+    this.mapOverlayObjects.push(portG);
 
-    // Stats
-    const nCont = this.discoveredContinents.size;
-    container.add(this.add.text(0, 170,
-      `발견: ${this.discoveredPorts.size} / 50 항구   ·   ${nCont} / 17 대륙`, {
-        fontSize: '13px', color: '#aaddff',
-      }).setOrigin(0.5));
+    const statsText = this.add.text(
+      width / 2, height / 2 + 170,
+      '발견: ' + this.discoveredPorts.size + ' / 50 항구   ·   ' + this.discoveredContinents.size + ' / 17 대륙',
+      { fontSize: '13px', color: '#aaddff' }
+    ).setOrigin(0.5).setScrollFactor(0).setDepth(41);
+    this.mapOverlayObjects.push(statsText);
 
-    // ESC to close
     const onEsc = () => this.hideMapOverview();
+    this._overviewEscHandler = onEsc;
     this.input.keyboard!.once('keydown-ESC', onEsc);
-    container.setData('escHandler', onEsc);
   }
 
   private hideMapOverview(): void {
-    if (!this.mapOverlayContainer) return;
-    const onEsc = this.mapOverlayContainer.getData('escHandler');
-    if (onEsc) this.input.keyboard!.off('keydown-ESC', onEsc);
-    this.mapOverlayContainer.destroy();
-    this.mapOverlayContainer = null;
+    if (this.mapOverlayObjects.length === 0) return;
+    if (this._overviewEscHandler) {
+      this.input.keyboard!.off('keydown-ESC', this._overviewEscHandler);
+      this._overviewEscHandler = null;
+    }
+    this.mapOverlayObjects.forEach(obj => obj.destroy());
+    this.mapOverlayObjects = [];
     this.isOverviewOpen = false;
   }
 
