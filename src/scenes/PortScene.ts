@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import type { Port, PortSceneData, CharacterType } from '../types';
+import type { WorldMapScene } from './WorldMapScene';
 import portsData from '../data/ports';
 
 const COUNTRY_CODES: Record<string, string> = {
@@ -221,6 +222,11 @@ export class PortScene extends Phaser.Scene {
     buttons.forEach(b => { b.setData('locked', true); b.disableInteractive(); });
 
     const isCorrect = chosen === correct;
+
+    // First-visit correct answer → progress quiz quests (reverse call into the paused WorldMapScene).
+    if (this.isNewVisit && isCorrect) {
+      (this.scene.get('WorldMapScene') as WorldMapScene).recordQuizPass(this.port.id, true);
+    }
 
     buttons.forEach(b => {
       if (b.getData('opt') === correct) {

@@ -41,6 +41,8 @@ export interface GameState {
   playerLon: number;
   lastPlayed: string;
   discoveredContinents: string[];
+  completedQuests?: string[];   // quest layer (optional → old saves migrate cleanly)
+  quizPassedPorts?: string[];   // ports whose first-visit quiz was answered correctly
 }
 
 export interface WorldMapSceneData {
@@ -64,6 +66,7 @@ export interface LogbookSceneData {
   discoveredPorts: string[];
   collectedSpecialties: string[];
   character: CharacterType;
+  completedQuests?: string[];   // quest layer (optional → old callers / pre-quest saves omit it)
 }
 
 export interface VictorySceneData {

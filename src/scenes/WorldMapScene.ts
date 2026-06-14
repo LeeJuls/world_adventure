@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import type { CharacterType, Port, GameState, WorldMapSceneData } from '../types';
 import portsData from '../data/ports';
+import { QUESTS, computeProgress, evaluateQuests, validateQuests, type QuestDef, type QuestState, type QuestProgress } from '../data/quests';
 
 const WORLD_W = 40960;
 const WORLD_H = 20480;
@@ -93,6 +94,15 @@ export class WorldMapScene extends Phaser.Scene {
   private isOverviewOpen = false;
   private mapOverlayObjects: Phaser.GameObjects.GameObject[] = [];
   private _overviewEscHandler: (() => void) | null = null;
+  // Quest layer (optional, derived). quizPassedPorts & completedQuests persist; progress is computed.
+  private quizPassedPorts: Set<string> = new Set();
+  private completedQuests: Set<string> = new Set();
+  private _questBootWarnings: string[] = [];
+  private pendingQuestBanners: QuestDef[] = [];
+  private pendingFromPort = false;
+  private _questBannerLog: Array<{ id: string; source: string }> = [];
+  private _questBannerShown: Array<{ id: string; text: string; character: string }> = []; // displayed banners (test obs.)
+  private questText!: Phaser.GameObjects.Text;
 
   constructor() {
     super({ key: 'WorldMapScene' });
@@ -110,6 +120,8 @@ export class WorldMapScene extends Phaser.Scene {
     this.discoveredPorts = new Set();
     this.collectedSpecialties = new Set();
     this.discoveredContinents = new Set(['east_asia']);
+    this.quizPassedPorts = new Set();
+    this.completedQuests = new Set();
     this.shipStartX = lonToX(125.8);
     this.shipStartY = latToY(37.4);
     this.buildPortContinentIndex();
@@ -121,6 +133,10 @@ export class WorldMapScene extends Phaser.Scene {
 
   create(): void {
     this.buildPortContinentIndex();
+
+    // Quest boot validation (one-time): every quest continentId must reference a real continent.
+    this._questBootWarnings = validateQuests(new Set(CONTINENT_DEFS.map((d) => d.id)));
+    this._questBootWarnings.forEach((w) => console.warn('[quest]', w));
 
     // Land polygons for collision
     const lpData = this.cache.json.get('landPolygons');
@@ -296,44 +312,18 @@ export class WorldMapScene extends Phaser.Scene {
     this.nearbyPort = null;
     this.anchorHint.setVisible(false);
 
-    const isNew = !this.discoveredPorts.has(port.id);
+    const isNew = this.applyPortDiscovery(port);
 
-    if (isNew) {
-      this.discoveredPorts.add(port.id);
-
-      port.specialties.forEach(s => {
-        this.collectedSpecialties.add(`${port.id}:${s.icon}`);
-      });
-
-      const g = this.portMarkers.get(port.id);
-      if (g) {
-        const px = lonToX(port.coords.lon);
-        const py = latToY(port.coords.lat);
-        g.clear();
-        g.fillStyle(0x44ff88);
-        g.fillCircle(px, py, 7);
-        g.fillStyle(0x22cc66, 0.4);
-        g.fillCircle(px, py, 14);
-      }
-
-      this.updateHUD();
-      this.cameras.main.flash(300, 255, 255, 100, false);
-
-      // Fog reveal — check if this port belongs to an undiscovered continent
-      const continentId = this.portToContinent.get(port.id) ?? '';
-      if (continentId && !this.discoveredContinents.has(continentId)) {
-        this.revealContinent(continentId);
-      }
-
-      if (this.collectedSpecialties.size >= TOTAL_SPECIALTIES) {
-        setTimeout(() => {
-          this.scene.start('VictoryScene', {
-            character: this.character,
-            totalTime: Date.now() - this.gameStartTime,
-          });
-        }, 600);
-        return;
-      }
+    // Victory trigger stays here. Quests were already evaluated inside applyPortDiscovery (E1),
+    // so the 150th port still counts even though VictoryScene replaces PortScene.
+    if (isNew && this.collectedSpecialties.size >= TOTAL_SPECIALTIES) {
+      setTimeout(() => {
+        this.scene.start('VictoryScene', {
+          character: this.character,
+          totalTime: Date.now() - this.gameStartTime,
+        });
+      }, 600);
+      return;
     }
 
     this.scene.launch('PortScene', {
@@ -343,6 +333,105 @@ export class WorldMapScene extends Phaser.Scene {
       isNewVisit: isNew,
     });
     this.scene.pause();
+  }
+
+  // Apply discovery progress (no scene launch). Returns whether it was a NEW port. Shared by
+  // discoverPort (real) and the dev harness (headless) so the two paths can never diverge.
+  private applyPortDiscovery(port: Port): boolean {
+    if (this.discoveredPorts.has(port.id)) return false;
+    this.discoveredPorts.add(port.id);
+
+    port.specialties.forEach(s => {
+      this.collectedSpecialties.add(`${port.id}:${s.icon}`);
+    });
+
+    const g = this.portMarkers.get(port.id);
+    if (g) {
+      const px = lonToX(port.coords.lon);
+      const py = latToY(port.coords.lat);
+      g.clear();
+      g.fillStyle(0x44ff88);
+      g.fillCircle(px, py, 7);
+      g.fillStyle(0x22cc66, 0.4);
+      g.fillCircle(px, py, 14);
+    }
+
+    this.updateHUD();
+    this.cameras.main.flash(300, 255, 255, 100, false);
+
+    // Fog reveal — port in an undiscovered continent reveals it (deferred banner)
+    const continentId = this.portToContinent.get(port.id) ?? '';
+    if (continentId && !this.discoveredContinents.has(continentId)) {
+      this.revealContinent(continentId);
+    }
+
+    // E1: evaluate quests here — before discoverPort's victory branch can early-return.
+    this.evaluateAndRecordQuests('port');
+    return true;
+  }
+
+  // Dev-harness entry: apply discovery headlessly (no PortScene).
+  private simDiscoverPort(id: string): unknown {
+    const port = this.ports.find(p => p.id === id);
+    if (!port) return { ok: false, reason: `no such port: ${id}` };
+    const isNew = this.applyPortDiscovery(port);
+    return { ok: true, isNew, completedQuests: [...this.completedQuests] };
+  }
+
+  // Evaluate all quests; record newly-completed ones (idempotent via completedQuests Set).
+  // Banner DISPLAY is wired in Step 4 — here we detect, persist, queue, and refresh the HUD.
+  private evaluateAndRecordQuests(source: 'port' | 'immediate'): void {
+    const newlyDone: QuestDef[] = [];
+    for (const p of evaluateQuests(this.questState())) {
+      if (p.done && !this.completedQuests.has(p.id)) {
+        this.completedQuests.add(p.id);
+        const def = QUESTS.find(q => q.id === p.id);
+        if (def) {
+          this._questBannerLog.push({ id: def.id, source });
+          newlyDone.push(def);
+        }
+      }
+    }
+    if (newlyDone.length > 0) {
+      if (source === 'immediate') {
+        // Sailing: scene is active, no resume is coming → show now (stacked).
+        newlyDone.forEach((def, i) => this.showQuestBanner(def, i));
+      } else {
+        // Port: PortScene is paused → queue and flush on resume (B2 gate).
+        this.pendingQuestBanners.push(...newlyDone);
+        this.pendingFromPort = true;
+      }
+    }
+    this.updateQuestTracker();
+  }
+
+  // First-visit quiz pass (called by PortScene). The first-visit/correct gate lives in PortScene;
+  // we re-guard idempotency + wrong-answer defensively. PortScene is paused when this runs → any
+  // quest completion banner flushes on resume via the existing pendingFromPort flow (Step 4).
+  recordQuizPass(portId: string, correct: boolean): { ok: boolean; quizPassedCount: number; completedQuests: string[] } {
+    if (!correct || this.quizPassedPorts.has(portId)) {
+      return { ok: false, quizPassedCount: this.quizPassedPorts.size, completedQuests: [...this.completedQuests] };
+    }
+    this.quizPassedPorts.add(portId);
+    this.evaluateAndRecordQuests('port');
+    return { ok: true, quizPassedCount: this.quizPassedPorts.size, completedQuests: [...this.completedQuests] };
+  }
+
+  // HUD tracker shows the first not-yet-completed quest (quests are ordered by difficulty).
+  private updateQuestTracker(): void {
+    if (!this.questText) return;
+    const st = this.questState();
+    let active: { titleKo: string; current: number; target: number } | null = null;
+    for (const def of QUESTS) {
+      if (this.completedQuests.has(def.id)) continue;
+      const p = computeProgress(def, st);
+      if (!p.done) { active = { titleKo: def.titleKo, current: p.current, target: p.target }; break; }
+    }
+    if (active) {
+      this.questText.setText(`🧭 ${active.titleKo} ${active.current}/${active.target}`).setVisible(true);
+    } else {
+      this.questText.setVisible(false);
+    }
   }
 
   // ── Drawing ───────────────────────────────────────────────────────────────
@@ -691,6 +780,11 @@ export class WorldMapScene extends Phaser.Scene {
       fontSize: '13px', color: '#ccddff',
     }).setOrigin(0, 0.5).setScrollFactor(0).setDepth(20);
 
+    // Quest tracker (second HUD row) — first not-yet-completed quest
+    this.questText = this.add.text(16, 50, '', {
+      fontSize: '12px', color: '#ffd479',
+    }).setScrollFactor(0).setDepth(20).setVisible(false);
+
     const saveBtn = this.add.text(width - 130, 32, '💾 저장', {
       fontSize: '16px',
       color: '#aaffcc',
@@ -718,6 +812,7 @@ export class WorldMapScene extends Phaser.Scene {
       this.scene.launch('LogbookScene', {
         discoveredPorts: [...this.discoveredPorts],
         collectedSpecialties: [...this.collectedSpecialties],
+        completedQuests: [...this.completedQuests],
         character: this.character,
       });
       this.scene.pause();
@@ -732,6 +827,7 @@ export class WorldMapScene extends Phaser.Scene {
     this.hudText.setText(`발견: ${portCount} / 50 항구`);
     this.specialtyText.setText(`특산품: ${spCount} / 150`);
     this.rankText.setText(this.getRank(portCount));
+    this.updateQuestTracker();
   }
 
   private getRank(count: number): string {
@@ -767,6 +863,15 @@ export class WorldMapScene extends Phaser.Scene {
           if (cid) this.discoveredContinents.add(cid);
         }
       }
+
+      // Restore quest progress. quizPassedPorts must precede the suppress eval (q_quiz_* depends on it).
+      this.completedQuests = new Set(state.completedQuests ?? []);
+      this.quizPassedPorts = new Set(state.quizPassedPorts ?? []);
+      // E3: silently absorb already-met quests via pure evaluateQuests (NOT the banner path) so loading
+      // fires no fireworks, and an old save's already-met quests don't re-fire on the next discovery.
+      for (const p of evaluateQuests(this.questState())) {
+        if (p.done) this.completedQuests.add(p.id);
+      }
     } catch {
       // ignore corrupt save
     }
@@ -782,6 +887,7 @@ export class WorldMapScene extends Phaser.Scene {
     if (immediate) {
       // Discovered while actively sailing: show banner now (scene is running)
       if (def) this.showContinentBanner(def.nameKo);
+      this.evaluateAndRecordQuests('immediate'); // E4: continent-only entry still evaluates quests
     } else {
       // Discovered via port → PortScene pauses; defer banner to resume to avoid mid-animation freeze
       this.pendingContinentReveal = continentId;
@@ -796,6 +902,11 @@ export class WorldMapScene extends Phaser.Scene {
       this.pendingContinentReveal = null;
       const def = CONTINENT_DEFS.find(d => d.id === id);
       if (def) this.showContinentBanner(def.nameKo);
+    }
+    // B2: only flush quest banners when resuming from a port discovery (not save/logbook close)
+    if (this.pendingFromPort) {
+      this.pendingFromPort = false;
+      this.flushQuestBanners();
     }
   }
 
@@ -816,6 +927,39 @@ export class WorldMapScene extends Phaser.Scene {
         { alpha: 0, duration: 500, ease: 'Cubic.In', onComplete: () => banner.destroy() },
       ],
     });
+  }
+
+  // Quest completion banner — clone of showContinentBanner, offset below it (y 96+) and
+  // character-flavoured. Pushes to _questBannerShown synchronously (before the tween) so tests
+  // can observe a display without waiting a frame.
+  private showQuestBanner(def: QuestDef, slot = 0): void {
+    const { width } = this.scale;
+    const line = (this.character === 'jun' ? def.clearJun : def.clearAra) ?? `${def.titleKo} 완료!`;
+    this._questBannerShown.push({ id: def.id, text: line, character: this.character });
+    const baseY = 96 + slot * 48;
+    const banner = this.add.text(width / 2, baseY, `🎉 임무 완료!\n${line}`, {
+      fontSize: '18px', color: this.character === 'jun' ? '#6fe3ff' : '#ff9d5c',
+      fontStyle: 'bold', align: 'center',
+      backgroundColor: 'rgba(0,16,48,0.90)', padding: { x: 18, y: 9 },
+      stroke: '#000000', strokeThickness: 2,
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(30).setAlpha(0);
+
+    this.tweens.chain({
+      targets: banner,
+      tweens: [
+        { y: baseY + 24, alpha: 1, duration: 400, ease: 'Cubic.Out' },
+        { alpha: 1, duration: 2500 },
+        { alpha: 0, duration: 500, ease: 'Cubic.In', onComplete: () => banner.destroy() },
+      ],
+    });
+  }
+
+  // Display all queued (port-source) completions, stacked. Take-ownership to prevent re-entrancy.
+  private flushQuestBanners(): void {
+    if (this.pendingQuestBanners.length === 0) return;
+    const batch = this.pendingQuestBanners;
+    this.pendingQuestBanners = [];
+    batch.forEach((def, i) => this.showQuestBanner(def, i));
   }
 
   private toggleMapOverview(): void {
@@ -938,6 +1082,25 @@ export class WorldMapScene extends Phaser.Scene {
     }
   }
 
+  // ── Quests (Step 1: derived read-path; discover/quiz wiring + UI in later steps) ──
+  private questState(): QuestState {
+    return {
+      discoveredPortCount: this.discoveredPorts.size,
+      discoveredContinentCount: this.discoveredContinents.size,
+      collectedSpecialtyCount: this.collectedSpecialties.size,
+      quizPassedCount: this.quizPassedPorts.size,
+      portsInContinent: (id: string) => {
+        const def = CONTINENT_DEFS.find((d) => d.id === id);
+        return def ? def.ports.reduce((n, p) => n + (this.discoveredPorts.has(p) ? 1 : 0), 0) : 0;
+      },
+    };
+  }
+
+  private questProgress(id: string): QuestProgress | null {
+    const def = QUESTS.find((q) => q.id === id);
+    return def ? computeProgress(def, this.questState()) : null;
+  }
+
   private buildCurrentGameState(): GameState {
     const lon = (this.ship?.x ?? this.shipStartX) / WORLD_W * 360 - 180;
     const lat = 90 - (this.ship?.y ?? this.shipStartY) / WORLD_H * 180;
@@ -950,6 +1113,8 @@ export class WorldMapScene extends Phaser.Scene {
       playerLon: lon,
       lastPlayed: new Date().toISOString(),
       discoveredContinents: [...this.discoveredContinents],
+      completedQuests: [...this.completedQuests],
+      quizPassedPorts: [...this.quizPassedPorts],
     };
   }
 }

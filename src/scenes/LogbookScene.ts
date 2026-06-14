@@ -1,10 +1,12 @@
 import Phaser from 'phaser';
 import type { Port, LogbookSceneData } from '../types';
 import portsData from '../data/ports';
+import { QUESTS } from '../data/quests';
 
 export class LogbookScene extends Phaser.Scene {
   private discoveredPorts: string[] = [];
   private collectedSpecialties: Set<string> = new Set();
+  private completedQuests: string[] = [];
 
   constructor() {
     super({ key: 'LogbookScene' });
@@ -13,6 +15,7 @@ export class LogbookScene extends Phaser.Scene {
   init(data: LogbookSceneData): void {
     this.discoveredPorts = data.discoveredPorts ?? [];
     this.collectedSpecialties = new Set(data.collectedSpecialties ?? []);
+    this.completedQuests = data.completedQuests ?? [];
   }
 
   create(): void {
@@ -37,7 +40,9 @@ export class LogbookScene extends Phaser.Scene {
 
     // Rank + stats
     const rank = this.getRank(portCount);
-    this.add.text(width / 2, 88, `${rank}  |  항구: ${portCount}/50  ·  특산품: ${spCount}/150`, {
+    // Quest mission count joins the stats line (denominator = QUESTS.length, never hardcoded).
+    this.add.text(width / 2, 88,
+      `${rank}  |  항구: ${portCount}/50  ·  특산품: ${spCount}/150  ·  🏆 임무: ${this.completedQuests.length}/${QUESTS.length}`, {
       fontSize: '16px', color: '#aaddff',
     }).setOrigin(0.5);
 

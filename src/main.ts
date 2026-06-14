@@ -33,3 +33,9 @@ const config: Phaser.Types.Core.GameConfig = {
 
 const game = new Phaser.Game(config);
 audio.init(game);
+
+// Dev-only test hooks (excluded from production builds via the DEV guard + dynamic import)
+if ((import.meta as any).env?.DEV) {
+  (window as any).__game = game;
+  void import('./dev/questHarness').then((m) => m.installQuestHarness(game));
+}
