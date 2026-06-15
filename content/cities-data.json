@@ -991,28 +991,28 @@
       "funFact": "레고 블록의 이름은 덴마크어로 '잘 놀다'라는 뜻의 'leg godt'에서 왔어요!"
     },
     {
-      "id": "moscow",
-      "nameKo": "모스크바",
-      "nameEn": "Moscow",
+      "id": "st_petersburg",
+      "nameKo": "상트페테르부르크",
+      "nameEn": "Saint Petersburg",
       "countryKo": "러시아",
       "countryEn": "Russia",
       "region": "europe",
       "coords": {
-        "lat": 55.75,
-        "lon": 37.62
+        "lat": 59.93,
+        "lon": 30.34
       },
       "specialties": [
         {
-          "icon": "borscht",
-          "nameKo": "보르시",
-          "nameEn": "Borscht",
-          "descKo": "빨간 비트를 넣어 만든 새콤달콤한 러시아 전통 수프예요"
+          "icon": "ballet",
+          "nameKo": "발레",
+          "nameEn": "Ballet",
+          "descKo": "세계 최고로 손꼽히는 러시아 발레의 중심 도시로, 유명한 발레 극장이 있어요"
         },
         {
-          "icon": "space",
-          "nameKo": "우주 개발",
-          "nameEn": "Space Technology",
-          "descKo": "러시아는 세계 최초로 우주선과 우주인을 우주로 보낸 나라예요"
+          "icon": "amber",
+          "nameKo": "호박 보석",
+          "nameEn": "Amber",
+          "descKo": "발트해에서 나는, 나무 수액이 굳어 만들어진 황금빛 보석으로 장신구로 인기예요"
         },
         {
           "icon": "matryoshka",
@@ -1022,11 +1022,11 @@
         }
       ],
       "landmark": {
-        "nameKo": "성 바실리 대성당",
-        "nameEn": "Saint Basil's Cathedral",
-        "descKo": "양파 모양의 알록달록한 지붕이 9개 달린 동화 속에 나올 것 같은 성당이에요"
+        "nameKo": "에르미타주 미술관",
+        "nameEn": "Hermitage Museum",
+        "descKo": "옛 러시아 황제의 겨울 궁전으로, 세계에서 가장 큰 미술관 중 하나예요"
       },
-      "funFact": "러시아는 세계에서 가장 큰 나라로, 땅의 넓이가 무려 1718만km²예요. 한반도의 78배나 됩니다!"
+      "funFact": "상트페테르부르크는 표트르 대제가 '유럽으로 난 창'으로 세운 항구도시로, 100개가 넘는 섬과 운하로 이루어져 '북쪽의 베네치아'라 불려요!"
     },
     {
       "id": "cairo",
@@ -1219,42 +1219,42 @@
       "funFact": "잔지바르는 퀸의 보컬 프레디 머큐리가 태어난 섬으로, 음악 팬들에게 아주 유명한 곳이에요!"
     },
     {
-      "id": "nairobi",
-      "nameKo": "나이로비",
-      "nameEn": "Nairobi",
+      "id": "mombasa",
+      "nameKo": "몸바사",
+      "nameEn": "Mombasa",
       "countryKo": "케냐",
       "countryEn": "Kenya",
       "region": "africa",
       "coords": {
-        "lat": -1.29,
-        "lon": 36.82
+        "lat": -4.04,
+        "lon": 39.67
       },
       "specialties": [
         {
-          "icon": "safari",
-          "nameKo": "사파리",
-          "nameEn": "Safari",
-          "descKo": "기린, 코끼리, 사자를 가까이서 볼 수 있는 야생 동물 여행이에요"
+          "icon": "spices",
+          "nameKo": "향신료",
+          "nameEn": "Spices",
+          "descKo": "인도양 무역으로 번성한 항구라 정향·후추 같은 향신료가 오래전부터 거래됐어요"
         },
         {
-          "icon": "coffee",
-          "nameKo": "커피",
-          "nameEn": "Kenyan Coffee",
-          "descKo": "케냐의 높은 지대에서 자란 커피는 세계에서 가장 맛있는 커피로 꼽혀요"
+          "icon": "mango",
+          "nameKo": "망고",
+          "nameEn": "Mango",
+          "descKo": "따뜻한 해안에서 자란 달고 즙이 많은 열대 과일로 케냐 사람들이 즐겨 먹어요"
         },
         {
-          "icon": "marathon",
-          "nameKo": "마라톤",
-          "nameEn": "Marathon",
-          "descKo": "케냐 선수들은 세계 마라톤 대회에서 거의 매번 1등을 하는 달리기의 나라예요"
+          "icon": "dhow",
+          "nameKo": "다우선",
+          "nameEn": "Dhow",
+          "descKo": "삼각돛을 단 전통 나무 배로, 수백 년간 인도양을 누비며 무역에 쓰였어요"
         }
       ],
       "landmark": {
-        "nameKo": "나이로비 국립공원",
-        "nameEn": "Nairobi National Park",
-        "descKo": "도시 안에 있는 세계에서 유일한 국립공원으로 빌딩을 배경으로 사자가 돌아다녀요"
+        "nameKo": "포트 지저스",
+        "nameEn": "Fort Jesus",
+        "descKo": "약 400년 전 포르투갈이 항구를 지키려 세운 거대한 돌 요새예요"
       },
-      "funFact": "나이로비는 세계에서 유일하게 도시 안에 국립공원이 있어요. 사무실 창문에서 기린이 보이기도 해요!"
+      "funFact": "몸바사는 케냐에서 가장 오래된 도시이자 가장 큰 항구로, 아프리카·아라비아·인도 상인들이 만나던 무역의 중심지였어요!"
     },
     {
       "id": "alexandria",
@@ -1447,42 +1447,42 @@
       "funFact": "로스앤젤레스에는 세계 180개국에서 온 사람들이 살아서 300개가 넘는 언어가 사용돼요!"
     },
     {
-      "id": "chicago",
-      "nameKo": "시카고",
-      "nameEn": "Chicago",
+      "id": "new_orleans",
+      "nameKo": "뉴올리언스",
+      "nameEn": "New Orleans",
       "countryKo": "미국",
       "countryEn": "United States",
       "region": "americas",
       "coords": {
-        "lat": 41.88,
-        "lon": -87.63
+        "lat": 29.95,
+        "lon": -90.07
       },
       "specialties": [
         {
-          "icon": "deep_dish_pizza",
-          "nameKo": "딥디시 피자",
-          "nameEn": "Deep-dish Pizza",
-          "descKo": "일반 피자와 달리 두꺼운 파이처럼 만든 시카고만의 특별한 피자예요"
-        },
-        {
           "icon": "jazz",
-          "nameKo": "재즈 & 블루스",
-          "nameEn": "Jazz & Blues",
-          "descKo": "시카고는 재즈와 블루스 음악이 꽃피운 미국 음악의 성지예요"
+          "nameKo": "재즈",
+          "nameEn": "Jazz",
+          "descKo": "뉴올리언스는 재즈 음악이 처음 태어난 도시로 '재즈의 고향'이라 불려요"
         },
         {
-          "icon": "skyscraper",
-          "nameKo": "마천루",
-          "nameEn": "Skyscraper",
-          "descKo": "세계 최초의 고층 빌딩인 마천루가 시카고에서 처음 만들어졌어요"
+          "icon": "gumbo",
+          "nameKo": "검보",
+          "nameEn": "Gumbo",
+          "descKo": "고기·해산물·채소를 푹 끓여 밥에 부어 먹는 뉴올리언스의 진한 전통 수프예요"
+        },
+        {
+          "icon": "mardi_gras",
+          "nameKo": "마르디 그라",
+          "nameEn": "Mardi Gras",
+          "descKo": "화려한 가면과 퍼레이드로 도시 전체가 들썩이는 세계적인 봄 축제예요"
         }
       ],
       "landmark": {
-        "nameKo": "클라우드 게이트",
-        "nameEn": "Cloud Gate (The Bean)",
-        "descKo": "거대한 콩 모양의 반짝이는 조형물로 시카고 하늘과 도시가 반사돼 보여요"
+        "nameKo": "프렌치 쿼터",
+        "nameEn": "French Quarter",
+        "descKo": "알록달록한 발코니 건물이 늘어선, 프랑스·스페인 분위기가 남은 옛 도심이에요"
       },
-      "funFact": "시카고는 '바람의 도시'라는 별명처럼, 바람이 너무 강해서 빌딩을 지을 때 특별히 더 튼튼하게 만들어야 해요!"
+      "funFact": "뉴올리언스는 미시시피강이 바다로 흘러드는 항구도시로, 도시의 많은 곳이 바다보다 낮아 둑으로 물을 막고 있어요!"
     },
     {
       "id": "rio_de_janeiro",
