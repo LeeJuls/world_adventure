@@ -1,5 +1,8 @@
 import type Phaser from 'phaser';
 import { QUESTS } from '../data/quests';
+import { REGION_ROUTE } from '../data/regionRoute';
+import { CONTINENT_DEFS } from '../scenes/WorldMapScene';
+import portsData from '../data/ports';
 
 // Dev-only quest test harness. Installed under import.meta.env.DEV in main.ts and excluded
 // from production via a dynamic import. Exposes `window.__qtest` for deterministic,
@@ -96,6 +99,20 @@ export function installQuestHarness(game: Phaser.Game): void {
   const shown = (): unknown[] => {
     const s = getScene();
     return Array.isArray(s._questBannerShown) ? [...s._questBannerShown] : [];
+  };
+
+  // Region-gate observation hooks (read-only views of the scene's derived gate helpers).
+  const gate = {
+    ROUTE: REGION_ROUTE,
+    canEnter: (lon: number, lat: number): unknown => getScene().canSailTo(lon, lat),
+    enterable: (id: string): boolean => !!getScene().isContinentEnterable(id),
+    complete: (id: string): boolean => !!getScene().isContinentComplete(id),
+    prereq: (id: string): unknown => getScene().routePrereq(id),
+    frontier: (): unknown => getScene().currentFrontierContinent(),
+    routeWarnings: (): unknown[] => {
+      const s = getScene();
+      return Array.isArray(s._routeBootWarnings) ? [...s._routeBootWarnings] : ['_routeBootWarnings missing'];
+    },
   };
 
   // TC registry — each step appends its cases here.
@@ -377,6 +394,60 @@ export function installQuestHarness(game: Phaser.Game): void {
       });
       return { pass: r.every((x) => x.pass), results: r };
     },
+    // Region gate R1 — data + derived helpers (RG1 route integrity / RG2 enterable transitions / RG3 KILLER canSailTo).
+    'gate': () => {
+      const s = getScene();
+      const r: Array<{ id: string; pass: boolean; detail: unknown }> = [];
+      const portCoord = (id: string): { lon: number; lat: number } | null => {
+        const p = (portsData as any).ports.find((x: any) => x.id === id);
+        return p ? p.coords : null;
+      };
+
+      // RG1: route boot-guard clean + shape (1:1 cover, starts at east_asia)
+      const warns = Array.isArray(s._routeBootWarnings) ? s._routeBootWarnings : ['_routeBootWarnings missing'];
+      r.push({
+        id: 'RG1',
+        pass: warns.length === 0 && REGION_ROUTE.length === CONTINENT_DEFS.length && REGION_ROUTE[0] === 'east_asia',
+        detail: { warns, routeLen: REGION_ROUTE.length, defsLen: CONTINENT_DEFS.length },
+      });
+
+      // RG2: enterable transitions — start always enterable; next locked until prereq complete; unlock on completion
+      fixture('FX_START');
+      const eaStart = s.isContinentEnterable('east_asia');         // start → true
+      const seaLocked = s.isContinentEnterable('southeast_asia');  // prereq east_asia incomplete → false
+      const saLocked = s.isContinentEnterable('south_asia');       // → false
+      ['seoul', 'tokyo', 'beijing', 'shanghai', 'hongkong'].forEach((p) => sim.discoverPort(p)); // complete east_asia
+      const seaUnlocked = s.isContinentEnterable('southeast_asia'); // → true
+      const saStill = s.isContinentEnterable('south_asia');         // southeast_asia not complete → still false
+      r.push({
+        id: 'RG2',
+        pass: eaStart && !seaLocked && !saLocked && seaUnlocked && !saStill,
+        detail: { eaStart, seaLocked, saLocked, seaUnlocked, saStill },
+      });
+
+      // RG3 (KILLER): canSailTo OR-over-boxes
+      fixture('FX_START');
+      const ocean = s.canSailTo(-160, 0);            // 3a open ocean (no box) → ok
+      const locked = s.canSailTo(78, 18.5);          // 3b locked single box (south_asia center) → blocked
+      // 3c own-port reachability: for every continent, once it's enterable, ALL its own ports are
+      //    reachable — even where boxes overlap. (Naive first-match/any-locked impls block 2~7 ports.)
+      const ownPortFails: string[] = [];
+      for (const def of CONTINENT_DEFS) {
+        fixture({ continents: [def.id] }); // discoveredContinents = {east_asia, def.id} → def.id enterable
+        for (const portId of def.ports) {
+          const c = portCoord(portId);
+          if (!c) { ownPortFails.push(`${portId}(no-coord)`); continue; }
+          if (!s.canSailTo(c.lon, c.lat).ok) ownPortFails.push(`${def.id}:${portId}`);
+        }
+      }
+      r.push({
+        id: 'RG3',
+        pass: ocean.ok === true && locked.ok === false && locked.blockedId === 'south_asia' && ownPortFails.length === 0,
+        detail: { ocean, locked, ownPortFails },
+      });
+
+      return { pass: r.every((x) => x.pass), results: r };
+    },
   };
 
   const runTC = (step: string | number): unknown => {
@@ -385,5 +456,5 @@ export function installQuestHarness(game: Phaser.Game): void {
     return fn ? fn() : { pass: false, results: [{ id: 'missing', pass: false, detail: `no TC for step ${step}` }] };
   };
 
-  w.__qtest = { fixture, snapshot, sim, q, banners, shown, runTC, FIXTURES };
+  w.__qtest = { fixture, snapshot, sim, q, banners, shown, gate, runTC, FIXTURES };
 }

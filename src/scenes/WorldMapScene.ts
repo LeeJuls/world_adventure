@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import type { CharacterType, Port, GameState, WorldMapSceneData } from '../types';
 import portsData from '../data/ports';
 import { QUESTS, computeProgress, evaluateQuests, validateQuests, type QuestDef, type QuestState, type QuestProgress } from '../data/quests';
+import { REGION_ROUTE, validateRoute } from '../data/regionRoute';
 
 const WORLD_W = 40960;
 const WORLD_H = 20480;
@@ -33,7 +34,7 @@ interface ContinentDef {
   box: [number, number, number, number]; // [lonMin, latMax, lonMax, latMin]
 }
 
-const CONTINENT_DEFS: ContinentDef[] = [
+export const CONTINENT_DEFS: ContinentDef[] = [
   { id: 'east_asia',               nameKo: '동아시아',           isStart: true,  ports: ['seoul','tokyo','beijing','shanghai','hongkong'],                           box: [113,48,152,18] },
   { id: 'southeast_asia',          nameKo: '동남아시아',          isStart: false, ports: ['singapore','bangkok','jakarta','hanoi'],                                    box: [96,25,113,-14] },
   { id: 'south_asia',              nameKo: '남아시아',            isStart: false, ports: ['mumbai','kolkata','karachi'],                                               box: [58,35,98,2] },
@@ -98,6 +99,7 @@ export class WorldMapScene extends Phaser.Scene {
   private quizPassedPorts: Set<string> = new Set();
   private completedQuests: Set<string> = new Set();
   private _questBootWarnings: string[] = [];
+  private _routeBootWarnings: string[] = [];
   private pendingQuestBanners: QuestDef[] = [];
   private pendingFromPort = false;
   private _questBannerLog: Array<{ id: string; source: string }> = [];
@@ -137,6 +139,10 @@ export class WorldMapScene extends Phaser.Scene {
     // Quest boot validation (one-time): every quest continentId must reference a real continent.
     this._questBootWarnings = validateQuests(new Set(CONTINENT_DEFS.map((d) => d.id)));
     this._questBootWarnings.forEach((w) => console.warn('[quest]', w));
+
+    // Region-gate boot validation (one-time): REGION_ROUTE must 1:1-cover the real continents.
+    this._routeBootWarnings = validateRoute(new Set(CONTINENT_DEFS.map((d) => d.id)));
+    this._routeBootWarnings.forEach((w) => console.warn('[route]', w));
 
     // Land polygons for collision
     const lpData = this.cache.json.get('landPolygons');
@@ -1099,6 +1105,52 @@ export class WorldMapScene extends Phaser.Scene {
   private questProgress(id: string): QuestProgress | null {
     const def = QUESTS.find((q) => q.id === id);
     return def ? computeProgress(def, this.questState()) : null;
+  }
+
+  // ── Region gate (R1: derived read-path; movement block wired in R2, banner/HUD in R3) ──
+  // All pure-derived from discoveredPorts/discoveredContinents + the static REGION_ROUTE → no new save state.
+
+  private isContinentComplete(id: string): boolean {
+    const def = CONTINENT_DEFS.find((d) => d.id === id);
+    if (!def) return false;
+    return this.questState().portsInContinent(id) === def.ports.length;
+  }
+
+  private routePrereq(id: string): string | null {
+    const i = REGION_ROUTE.indexOf(id);
+    return i <= 0 ? null : REGION_ROUTE[i - 1];
+  }
+
+  // Enterable = it's the start, already discovered, or its route-prereq continent is fully discovered.
+  private isContinentEnterable(id: string): boolean {
+    const def = CONTINENT_DEFS.find((d) => d.id === id);
+    if (def?.isStart) return true;
+    if (this.discoveredContinents.has(id)) return true;
+    const pre = this.routePrereq(id);
+    return pre ? this.isContinentComplete(pre) : false;
+  }
+
+  // The continent the player must complete next = first not-yet-complete continent along the route.
+  private currentFrontierContinent(): string | null {
+    for (const id of REGION_ROUTE) if (!this.isContinentComplete(id)) return id;
+    return null;
+  }
+
+  // Can the ship occupy (lon,lat)? Blocked ONLY if it lies inside >=1 continent box AND none of
+  // those boxes are enterable. Continent boxes overlap (a port can sit inside another continent's
+  // box), so we OR over all containing boxes — if ANY is enterable the move is allowed; this keeps
+  // a continent's own ports reachable once it unlocks. Open ocean (no box) is always allowed.
+  private canSailTo(lon: number, lat: number): { ok: boolean; blockedId: string | null } {
+    let inAny = false;
+    let blocked: string | null = null;
+    for (const def of CONTINENT_DEFS) {
+      const [lonMin, latMax, lonMax, latMin] = def.box;
+      if (lon < lonMin || lon > lonMax || lat < latMin || lat > latMax) continue;
+      inAny = true;
+      if (this.isContinentEnterable(def.id)) return { ok: true, blockedId: null };
+      blocked = blocked ?? def.id;
+    }
+    return inAny ? { ok: false, blockedId: blocked } : { ok: true, blockedId: null };
   }
 
   private buildCurrentGameState(): GameState {
