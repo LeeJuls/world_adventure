@@ -25,6 +25,12 @@ function lonToX(lon: number): number {
 function latToY(lat: number): number {
   return (90 - lat) / 180 * WORLD_H;
 }
+function xToLon(x: number): number {
+  return x / WORLD_W * 360 - 180;
+}
+function yToLat(y: number): number {
+  return 90 - y / WORLD_H * 180;
+}
 
 interface ContinentDef {
   id: string;
@@ -246,6 +252,12 @@ export class WorldMapScene extends Phaser.Scene {
 
     const newX = Phaser.Math.Clamp(this.ship.x + dx, 16, WORLD_W - 16);
     const newY = Phaser.Math.Clamp(this.ship.y + dy, 16, WORLD_H - 16);
+
+    // Region gate: reject a move whose target lies in a not-yet-enterable continent. The early
+    // return skips the position commit, rotation, AND fog reveal — and because the ship never
+    // enters the locked box, update()'s continent-entry detection (above) can't fire there either.
+    // (Blocked-notice banner + progress HUD are wired in R3.)
+    if (!this.canSailTo(xToLon(newX), yToLat(newY)).ok) return;
 
     if (!this.isOnLand(newX, newY)) {
       this.ship.setPosition(newX, newY);

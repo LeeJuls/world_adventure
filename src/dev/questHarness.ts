@@ -446,6 +446,50 @@ export function installQuestHarness(game: Phaser.Game): void {
         detail: { ocean, locked, ownPortFails },
       });
 
+      // ── R2: movement-gate integration (drive the real handleShipMovement via update) ──
+      const setShip = (lon: number, lat: number) => s.ship.setPosition((lon + 180) / 360 * 40960, (90 - lat) / 180 * 20480);
+      const drive = (key: 'A' | 'D' | 'W' | 'S', frames: number) => {
+        s.wasd[key].isDown = true;
+        for (let i = 0; i < frames; i++) s.update(0, 1000); // 1000ms → 280px steps (coarse, deterministic)
+        s.wasd[key].isDown = false;
+      };
+
+      // RG4: gate physically holds the ship at a LOCKED region's OCEAN edge — isolating the gate
+      // from land. Live-probed corridor at lat 12: (116,12) ocean+enterable; (112,12)/(110,12) are
+      // OCEAN yet inside locked southeast_asia. So a ship that stops there can ONLY be stopped by the
+      // gate (the water itself is sailable). Same move blocked while locked, crosses once unlocked.
+      const lonOf = () => s.ship.x / 40960 * 360 - 180;
+      fixture('FX_START'); setShip(116, 12); drive('A', 2);   // sail west into SEA while locked
+      const blockedLon = lonOf();
+      const rg4Blocked = blockedLon > 113 && !s.discoveredContinents.has('southeast_asia');
+      ['seoul', 'tokyo', 'beijing', 'shanghai', 'hongkong'].forEach((p) => sim.discoverPort(p)); // complete east_asia → unlock SEA
+      setShip(116, 12); drive('A', 2);                         // identical move now crosses + reveals
+      const openLon = lonOf();
+      const rg4Allowed = openLon < 113 && s.discoveredContinents.has('southeast_asia');
+      r.push({ id: 'RG4', pass: rg4Blocked && rg4Allowed, detail: { blockedLon, openLon, seaDiscovered: s.discoveredContinents.has('southeast_asia') } });
+
+      // RG6a: lock→unlock transition (off-by-one) + no two-step double-unlock
+      fixture('FX_START');
+      ['seoul', 'tokyo', 'beijing', 'shanghai'].forEach((p) => sim.discoverPort(p)); // 4/5 east_asia
+      const seaLocked4 = s.isContinentEnterable('southeast_asia');
+      const seaBlocked4 = s.canSailTo(104.5, 5.5).ok;     // SEA center
+      sim.discoverPort('hongkong');                        // 5/5 → east_asia complete
+      const seaOpen5 = s.isContinentEnterable('southeast_asia');
+      const seaOk5 = s.canSailTo(104.5, 5.5).ok;
+      const saNoLeak = s.isContinentEnterable('south_asia'); // must stay locked (only ONE step unlocks)
+      r.push({
+        id: 'RG6a',
+        pass: seaLocked4 === false && seaBlocked4 === false && seaOpen5 === true && seaOk5 === true && saNoLeak === false,
+        detail: { seaLocked4, seaBlocked4, seaOpen5, seaOk5, saNoLeak },
+      });
+      // RG6b: identical sail-west-into-SEA — blocked (no reveal) before unlock, enters + reveals after
+      fixture('FX_START'); setShip(114, 19); drive('A', 2);  // east_asia incomplete → blocked
+      const beforeUnlock = !s.discoveredContinents.has('southeast_asia');
+      ['seoul', 'tokyo', 'beijing', 'shanghai', 'hongkong'].forEach((p) => sim.discoverPort(p));
+      setShip(114, 19); drive('A', 2);                        // east_asia complete → SEA unlocked → enters + reveals
+      const afterUnlock = s.discoveredContinents.has('southeast_asia');
+      r.push({ id: 'RG6b', pass: beforeUnlock === true && afterUnlock === true, detail: { beforeUnlock, afterUnlock } });
+
       return { pass: r.every((x) => x.pass), results: r };
     },
   };
