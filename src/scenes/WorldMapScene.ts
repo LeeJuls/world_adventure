@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import type { CharacterType, Port, GameState, WorldMapSceneData } from '../types';
 import portsData from '../data/ports';
 import { QUESTS, computeProgress, evaluateQuests, validateQuests, type QuestDef, type QuestState, type QuestProgress } from '../data/quests';
-import { REGION_ROUTE, validateRoute } from '../data/regionRoute';
+import { REGION_ROUTE, GATE_MSG, validateRoute } from '../data/regionRoute';
 
 const WORLD_W = 40960;
 const WORLD_H = 20480;
@@ -111,6 +111,10 @@ export class WorldMapScene extends Phaser.Scene {
   private _questBannerLog: Array<{ id: string; source: string }> = [];
   private _questBannerShown: Array<{ id: string; text: string; character: string }> = []; // displayed banners (test obs.)
   private questText!: Phaser.GameObjects.Text;
+  // Region gate (R3): progress HUD + debounced blocked-notice. Runtime-only — never serialized to a save.
+  private regionText!: Phaser.GameObjects.Text;
+  private _lastGateMsgAt = 0;
+  private _gateBlockLog: Array<{ at: number; text: string; frontier: string }> = []; // region-gate notices (test obs.)
 
   constructor() {
     super({ key: 'WorldMapScene' });
@@ -256,8 +260,7 @@ export class WorldMapScene extends Phaser.Scene {
     // Region gate: reject a move whose target lies in a not-yet-enterable continent. The early
     // return skips the position commit, rotation, AND fog reveal — and because the ship never
     // enters the locked box, update()'s continent-entry detection (above) can't fire there either.
-    // (Blocked-notice banner + progress HUD are wired in R3.)
-    if (!this.canSailTo(xToLon(newX), yToLat(newY)).ok) return;
+    if (!this.canSailTo(xToLon(newX), yToLat(newY)).ok) { this.showGateBlockedBanner(); return; }
 
     if (!this.isOnLand(newX, newY)) {
       this.ship.setPosition(newX, newY);
@@ -803,6 +806,11 @@ export class WorldMapScene extends Phaser.Scene {
       fontSize: '12px', color: '#ffd479',
     }).setScrollFactor(0).setDepth(20).setVisible(false);
 
+    // Region-gate progress (third HUD row) — the continent you must complete next, e.g. "🧭 다음 항로: 동아시아 0/5"
+    this.regionText = this.add.text(16, 66, '', {
+      fontSize: '12px', color: '#8fe3ff',
+    }).setScrollFactor(0).setDepth(20);
+
     const saveBtn = this.add.text(width - 130, 32, '💾 저장', {
       fontSize: '16px',
       color: '#aaffcc',
@@ -846,6 +854,7 @@ export class WorldMapScene extends Phaser.Scene {
     this.specialtyText.setText(`특산품: ${spCount} / 150`);
     this.rankText.setText(this.getRank(portCount));
     this.updateQuestTracker();
+    this.updateRegionHUD();
   }
 
   private getRank(count: number): string {
@@ -945,6 +954,57 @@ export class WorldMapScene extends Phaser.Scene {
         { alpha: 0, duration: 500, ease: 'Cubic.In', onComplete: () => banner.destroy() },
       ],
     });
+  }
+
+  // Generic info banner (region-gate notices) — showContinentBanner tone, amber.
+  private showInfoBanner(text: string): void {
+    const { width } = this.scale;
+    const banner = this.add.text(width / 2, 60, text, {
+      fontSize: '18px', color: '#ff9d5c', fontStyle: 'bold',
+      backgroundColor: 'rgba(0,16,48,0.90)',
+      padding: { x: 18, y: 9 },
+      stroke: '#000000', strokeThickness: 2,
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(30).setAlpha(0);
+
+    this.tweens.chain({
+      targets: banner,
+      tweens: [
+        { y: 84, alpha: 1, duration: 300, ease: 'Cubic.Out' },
+        { alpha: 1, duration: 1800 },
+        { alpha: 0, duration: 500, ease: 'Cubic.In', onComplete: () => banner.destroy() },
+      ],
+    });
+  }
+
+  // Blocked-region notice — called every frame the ship bumps a locked region, so debounce to 2s.
+  // Names the continent you must finish, how many ports remain (n/N), and where it unlocks next.
+  private showGateBlockedBanner(): void {
+    const now = this.time.now;
+    if (now - this._lastGateMsgAt < 2000) return;
+    const frontier = this.currentFrontierContinent();
+    if (!frontier) return;
+    const def = CONTINENT_DEFS.find((d) => d.id === frontier);
+    if (!def) return;
+    this._lastGateMsgAt = now;
+    const n = this.questState().portsInContinent(frontier);
+    const nextId = REGION_ROUTE[REGION_ROUTE.indexOf(frontier) + 1];
+    const nextKo = CONTINENT_DEFS.find((d) => d.id === nextId)?.nameKo ?? '';
+    const text = GATE_MSG.blocked
+      .replace('{cur}', def.nameKo).replace('{n}', String(n))
+      .replace('{N}', String(def.ports.length)).replace('{next}', nextKo);
+    this._gateBlockLog.push({ at: now, text, frontier });
+    this.showInfoBanner(text);
+  }
+
+  // Region-gate progress HUD — the continent the player must complete next (n/N), or all-clear.
+  private updateRegionHUD(): void {
+    if (!this.regionText) return;
+    const frontier = this.currentFrontierContinent();
+    if (!frontier) { this.regionText.setText(GATE_MSG.allClear); return; }
+    const def = CONTINENT_DEFS.find((d) => d.id === frontier);
+    if (!def) { this.regionText.setText(''); return; }
+    const n = this.questState().portsInContinent(frontier);
+    this.regionText.setText(`${GATE_MSG.hudPrefix}: ${def.nameKo} ${n}/${def.ports.length}`);
   }
 
   // Quest completion banner — clone of showContinentBanner, offset below it (y 96+) and

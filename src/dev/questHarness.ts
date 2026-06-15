@@ -64,6 +64,8 @@ export function installQuestHarness(game: Phaser.Game): void {
     if (Array.isArray(s._questBannerLog)) s._questBannerLog = [];
     if (s.pendingFromPort !== undefined) s.pendingFromPort = false;
     if (Array.isArray(s._questBannerShown)) s._questBannerShown = [];
+    if (Array.isArray(s._gateBlockLog)) s._gateBlockLog = [];
+    if (s._lastGateMsgAt !== undefined) s._lastGateMsgAt = 0;
     s.fogDirty = true;
     if (typeof s.rebuildFog === 'function') s.rebuildFog();
     if (typeof s.updateHUD === 'function') s.updateHUD();
@@ -112,6 +114,10 @@ export function installQuestHarness(game: Phaser.Game): void {
     routeWarnings: (): unknown[] => {
       const s = getScene();
       return Array.isArray(s._routeBootWarnings) ? [...s._routeBootWarnings] : ['_routeBootWarnings missing'];
+    },
+    blockLog: (): unknown[] => {
+      const s = getScene();
+      return Array.isArray(s._gateBlockLog) ? [...s._gateBlockLog] : [];
     },
   };
 
@@ -489,6 +495,59 @@ export function installQuestHarness(game: Phaser.Game): void {
       setShip(114, 19); drive('A', 2);                        // east_asia complete → SEA unlocked → enters + reveals
       const afterUnlock = s.discoveredContinents.has('southeast_asia');
       r.push({ id: 'RG6b', pass: beforeUnlock === true && afterUnlock === true, detail: { beforeUnlock, afterUnlock } });
+
+      // ── R3: blocked-notice debounce + progress HUD + non-punitive load + invariants ──
+      // RG5 (KILLER): many bumps within the 2s window → exactly ONE notice; re-notify after the window.
+      fixture('FX_START');
+      s._gateBlockLog = []; s._lastGateMsgAt = -10000;          // ensure first call passes regardless of clock
+      for (let i = 0; i < 60; i++) s.showGateBlockedBanner();   // same synchronous frame → this.time.now constant
+      const afterBurst = s._gateBlockLog.length;                // expect 1 (debounced)
+      s._lastGateMsgAt = s.time.now - 3000;                     // simulate 3s elapsed (past the 2s window)
+      s.showGateBlockedBanner();
+      const afterWindow = s._gateBlockLog.length;               // expect 2 (re-notified)
+      const msg0 = s._gateBlockLog[0];
+      r.push({
+        id: 'RG5',
+        pass: afterBurst === 1 && afterWindow === 2 && !!msg0 && msg0.frontier === 'east_asia'
+          && /0\/5/.test(msg0.text) && msg0.text.includes('동아시아'),
+        detail: { afterBurst, afterWindow, msg0: msg0 && msg0.text },
+      });
+
+      // RG7: old-save non-punitive — non-contiguously discovered continents stay enterable; no new save field.
+      fixture({ ports: ['seoul', 'tokyo', 'mumbai', 'new_york'], continents: ['south_asia', 'north_america'] });
+      const oldOk = s.isContinentEnterable('south_asia') && s.isContinentEnterable('north_america');
+      const stillLocked = !s.isContinentEnterable('oceania'); // undiscovered + prereq incomplete → locked
+      const st = s.buildCurrentGameState();
+      const noNewField = !('unlockedRegions' in st) && !('regionGate' in st) && !('routeUnlocked' in st);
+      r.push({ id: 'RG7', pass: oldOk && stillLocked && noNewField, detail: { oldOk, stillLocked, noNewField, keys: Object.keys(st) } });
+
+      // RG8: explorationPercent stays in range; the route fully covers all 50 ports (= 150 specialties = win reachable).
+      fixture('FX_START');
+      const pct0 = s.explorationPercent();
+      ['seoul', 'tokyo', 'beijing', 'shanghai', 'hongkong'].forEach((p) => sim.discoverPort(p));
+      const pct1 = s.explorationPercent();
+      const routePorts = CONTINENT_DEFS.reduce((n: number, d: any) => n + d.ports.length, 0);
+      r.push({
+        id: 'RG8',
+        pass: pct0 >= 0 && pct0 <= 100 && pct1 >= 0 && pct1 <= 100 && routePorts === 50,
+        detail: { pct0, pct1, routePorts },
+      });
+
+      // RG9: progress HUD names the current frontier continent + n/N, and advances as regions complete.
+      fixture('FX_START');
+      s.updateRegionHUD();
+      const hud0 = s.regionText ? s.regionText.text : '';
+      const f0 = s.currentFrontierContinent();
+      ['seoul', 'tokyo', 'beijing', 'shanghai', 'hongkong'].forEach((p) => sim.discoverPort(p));
+      s.updateRegionHUD();
+      const hud1 = s.regionText ? s.regionText.text : '';
+      const f1 = s.currentFrontierContinent();
+      r.push({
+        id: 'RG9',
+        pass: f0 === 'east_asia' && hud0.includes('동아시아') && hud0.includes('0/5')
+          && f1 === 'southeast_asia' && hud1.includes('동남아시아'),
+        detail: { hud0, hud1, f0, f1 },
+      });
 
       return { pass: r.every((x) => x.pass), results: r };
     },
